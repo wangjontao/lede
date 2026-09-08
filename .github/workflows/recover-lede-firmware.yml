@@ -1,0 +1,70 @@
+name: Recover compiled LEDE firmware
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Download and extract completed firmware artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p incoming recovered bundles
+
+          recover() {
+            run_id="$1"
+            artifact="$2"
+            echo "Recovering ${artifact} from run ${run_id}"
+            gh run download "$run_id" -R "$GITHUB_REPOSITORY" -n "$artifact" -D "incoming/$artifact"
+            mkdir -p "recovered/$artifact"
+            find "incoming/$artifact" -type f \( \
+              -name '*.bin' -o \
+              -name '*.manifest' -o \
+              -name 'build.config' -o \
+              -name 'SHA256SUMS' \
+            \) -exec cp -f '{}' "recovered/$artifact/" \;
+            test -n "$(find "recovered/$artifact" -name '*sysupgrade.bin' -print -quit)"
+            (cd "recovered/$artifact" && sha256sum * > SHA256SUMS.recovered)
+            zip -j -1 "bundles/$artifact.zip" "recovered/$artifact"/*
+          }
+
+          recover 34248445703 Xiaomi-Redmi-AX6000-93
+          recover 34248426201 CMCC-XR30-NAND-92
+          recover 34248422796 CMCC-A10-91
+          recover 34248406932 KONKA-KOMI-A31-90
+          recover 34248402327 Cudy-TR3000-v1-89
+          recover 34248385542 Cetron-CT3003-88
+          recover 34248365594 Qihoo-360T7-86
+          recover 34248361273 JDCloud-RE-CS-05-AX6000-85
+          recover 34248339549 Xiaomi-WR30U-83
+          recover 34248321816 RAX3000M-eMMC-82
+          recover 34248320651 Nokia-EA0326GMP-81
+          recover 34248305782 RAX3000M-NAND-80
+          recover 34248303641 JCG-Q30-Pro-79
+
+      - name: Publish recovered firmware release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="Recovered-LEDE-firmware-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" bundles/*.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Recovered LEDE firmware ${GITHUB_RUN_NUMBER}" \
+            --notes "Recovered from completed builds whose final validation step failed after firmware generation. Each archive includes firmware images, manifest, build configuration when available, and regenerated SHA256 checksums."
+
+      - name: Upload combined recovery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Recovered-LEDE-firmware-${{ github.run_number }}
+          path: bundles/*.zip
+          retention-days: 30
