@@ -47,8 +47,7 @@ jobs:
           IMAGE=$(find bin/targets/mediatek/filogic -name '*xiaomi_mi-router-ax3000t*sysupgrade.bin' -size +5M | head -n1)
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*xiaomi_mi-router-ax3000t*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
-          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
-          for p in luci-app-ddns ddns-scripts luci-app-nlbwmon nlbwmon luci-app-wrtbwmon wrtbwmon luci-app-wol wol luci-app-vlmcsd vlmcsd; do ! grep -q "^$p " "$MANIFEST"; done
+          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc luci-app-ddns luci-app-nlbwmon luci-app-wol luci-app-vlmcsd; do grep -q "^$p " "$MANIFEST"; done
           grep -q "server.datatype = \"host\"" "${ROOT%/etc/shadow}/usr/lib/lua/luci/model/cbi/nps.lua"
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
           mkdir -p release
@@ -75,4 +74,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-xiaomi_mi-router-ax3000t-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Xiaomi AX3000T jontaoNpS ${{ github.run_number }}" --notes 'LEDE target xiaomi_mi-router-ax3000t; DTS mt7981b-xiaomi-ax3000t; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS accepts IPv4 or domain names, uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. DDNS, bandwidth monitor, Wake-on-LAN and Vlmcsd removed.'
+          gh release create "jontaoNpS-xiaomi_mi-router-ax3000t-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Xiaomi AX3000T jontaoNpS ${{ github.run_number }}" --notes 'LEDE target xiaomi_mi-router-ax3000t; DTS mt7981b-xiaomi-ax3000t; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS accepts IPv4 or domain names, uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. DDNS, bandwidth monitor, Wake-on-LAN and Vlmcsd retained.'
