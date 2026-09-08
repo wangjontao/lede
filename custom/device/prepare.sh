@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+set -x
 ./scripts/feeds update -a
 if ! ./scripts/feeds install -a; then
     echo 'Feed-wide installation reported optional-package dependency warnings; validating requested packages explicitly.'
