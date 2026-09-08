@@ -20,13 +20,7 @@ grep -q 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile
 cp custom/device/config.seed .config
 make defconfig
 grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_cmcc_rax3000m-emmc=y$' .config
-for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
-for p in luci-app-ddns ddns-scripts luci-app-nlbwmon nlbwmon luci-app-wrtbwmon wrtbwmon luci-app-wol wol luci-app-vlmcsd vlmcsd; do
-    if grep -q "^CONFIG_PACKAGE_${p}=y$" .config; then
-        echo "Removed package unexpectedly selected: $p"
-        exit 1
-    fi
-done
+for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc luci-app-ddns luci-app-nlbwmon luci-app-wol luci-app-vlmcsd; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
 HASH="$(openssl passwd -1 'password')"
 cp package/base-files/files/etc/shadow files/etc/shadow
 sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
