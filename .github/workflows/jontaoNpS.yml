@@ -47,8 +47,7 @@ jobs:
           IMAGE=$(find bin/targets/mediatek/filogic -name '*philips_hy3000*sysupgrade.bin' -size +5M | head -n1)
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*philips_hy3000*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
-          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc luci-app-ddns luci-app-nlbwmon luci-app-wol luci-app-vlmcsd; do grep -q "^$p " "$MANIFEST"; done
-          grep -q "server.datatype = \"host\"" "${ROOT%/etc/shadow}/usr/lib/lua/luci/model/cbi/nps.lua"
+          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
@@ -74,4 +73,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-philips_hy3000-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Philips HY3000 jontaoNpS ${{ github.run_number }}" --notes 'LEDE target philips_hy3000; DTS mt7981b-philips-hy3000; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS accepts IPv4 or domain names, uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. DDNS, bandwidth monitor, Wake-on-LAN and Vlmcsd retained.'
+          gh release create "jontaoNpS-philips_hy3000-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Philips HY3000 jontaoNpS ${{ github.run_number }}" --notes 'LEDE target philips_hy3000; DTS mt7981b-philips-hy3000; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. Package selection follows the first verified successful LEDE baseline.'
