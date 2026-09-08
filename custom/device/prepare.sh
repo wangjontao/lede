@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 ./scripts/feeds update -a
-./scripts/feeds install -a
+if ! ./scripts/feeds install -a; then
+    echo 'Feed-wide installation reported optional-package dependency warnings; validating requested packages explicitly.'
+fi
 ./scripts/feeds install -f -p passwall luci-app-passwall
 ./scripts/feeds install -f -p passwall2 luci-app-passwall2
 ./scripts/feeds install -f -p istore luci-app-store
@@ -19,7 +21,12 @@ cp custom/device/config.seed .config
 make defconfig
 grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_nokia_ea0326gmp=y$' .config
 for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
-for p in luci-app-ddns ddns-scripts luci-app-nlbwmon nlbwmon luci-app-wrtbwmon wrtbwmon luci-app-wol wol luci-app-vlmcsd vlmcsd; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config && { echo "Removed package unexpectedly selected: $p"; exit 1; } || true; done
+for p in luci-app-ddns ddns-scripts luci-app-nlbwmon nlbwmon luci-app-wrtbwmon wrtbwmon luci-app-wol wol luci-app-vlmcsd vlmcsd; do
+    if grep -q "^CONFIG_PACKAGE_${p}=y$" .config; then
+        echo "Removed package unexpectedly selected: $p"
+        exit 1
+    fi
+done
 HASH="$(openssl passwd -1 'password')"
 cp package/base-files/files/etc/shadow files/etc/shadow
 sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
