@@ -418,6 +418,20 @@ define Device/cmcc_a10
 endef
 TARGET_DEVICES += cmcc_a10
 
+define Device/cmcc_zn-m5
+  DEVICE_VENDOR := ZN
+  DEVICE_MODEL := M5 / ZR-3027
+  DEVICE_DTS := mt7981b-cmcc-zn-m5
+  DEVICE_DTS_DIR := ../dts
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cmcc_zn-m5
+
 define Device/cmcc_a10-mod
   DEVICE_VENDOR := CMCC
   DEVICE_MODEL := A10 (U-Boot mod)
