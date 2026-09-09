@@ -8,7 +8,7 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="/root/tiktok10wifi-backup-${STAMP}"
 
 mkdir -p "$BACKUP_DIR"
-for cfg in network dhcp wireless firewall passwall passwall2; do
+for cfg in network dhcp wireless firewall; do
     [ -f "/etc/config/$cfg" ] && cp -p "/etc/config/$cfg" "$BACKUP_DIR/$cfg"
 done
 
@@ -123,16 +123,6 @@ uci commit dhcp
 uci commit wireless
 uci commit firewall
 
-# Replace proxy configuration only after the network configuration is complete.
-CONFIG_BUNDLE="/root/tiktok10wifi-files"
-if [ ! -s "$CONFIG_BUNDLE/passwall" ] || [ ! -s "$CONFIG_BUNDLE/passwall2" ]; then
-    echo "ERROR: missing PassWall configuration files in $CONFIG_BUNDLE" >&2
-    exit 1
-fi
-cp "$CONFIG_BUNDLE/passwall" /etc/config/passwall
-cp "$CONFIG_BUNDLE/passwall2" /etc/config/passwall2
-chmod 600 /etc/config/passwall /etc/config/passwall2
-
 /etc/init.d/network restart
 sleep 8
 /etc/init.d/dnsmasq restart
@@ -142,4 +132,4 @@ wifi reload
 echo "TikTok 10WiFi configured: A1-A8 on 5 GHz, A9-A10 on 2.4 GHz."
 echo "Password: ${WIFI_PASSWORD}"
 echo "Backups: ${BACKUP_DIR}"
-echo "No tkwifi forwarding to WAN was created. User-provided PassWall configurations were installed."
+echo "No tkwifi forwarding to WAN was created. PassWall and PassWall2 were not modified."
