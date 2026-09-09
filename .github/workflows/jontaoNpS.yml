@@ -2,7 +2,7 @@ name: Cetron CT3003 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-ct3003]
+    branches: [jontaoNpS-ct3003-5wifi]
 permissions:
   contents: write
 concurrency:
