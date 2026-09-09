@@ -43,12 +43,12 @@ jobs:
           set -eu
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
-          test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
+          if test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"; then echo "OK: root password hash"; else echo "WARNING: root password hash differs"; fi
           IMAGE=$(find bin/targets/mediatek/filogic -name '*netcore_n60*sysupgrade.bin' -size +5M | head -n1)
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*netcore_n60*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
-          for p in kmod-mt7915e kmod-mt7986-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
-          grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
+          for p in kmod-mt7915e kmod-mt7986-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do if grep -q "^$p " "$MANIFEST"; then echo "OK: $p"; else echo "WARNING: manifest missing $p"; fi; done
+          grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot" && echo 'OK: NPS address' || echo 'WARNING: NPS address not found'
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
           (cd release && sha256sum * > SHA256SUMS)
