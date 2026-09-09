@@ -2,7 +2,7 @@ name: Qihoo 360T7 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-360t7]
+    branches: [jontaoNpS-360t7-5wifi]
 permissions:
   contents: write
 concurrency:
