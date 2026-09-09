@@ -2,7 +2,7 @@ name: Philips HY3000 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-hy3000-lede]
+    branches: [jontaoNpS-hy3000-10wifi]
 permissions:
   contents: write
 concurrency:
