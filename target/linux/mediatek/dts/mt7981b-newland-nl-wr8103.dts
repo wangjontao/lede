@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+#include "mt7981b-cmcc-rax3000m-nand.dts"
+/ {
+ model = "Newland NL-WR8103";
+ compatible = "newland,nl-wr8103", "mediatek,mt7981";
+ memory { reg = <0 0x40000000 0 0x10000000>; };
+};
+&red_led { gpios = <&pio 11 GPIO_ACTIVE_LOW>; };
+&green_led { gpios = <&pio 12 GPIO_ACTIVE_LOW>; };
+/ { gpio-leds { led-1 { gpios = <&pio 10 GPIO_ACTIVE_LOW>; }; }; };
+&switch { ports {
+ port@0 { label = "lan1"; };
+ port@1 { label = "lan2"; };
+ port@2 { label = "lan3"; };
+}; };
+&factory {
+ label = "Factory";
+ nvmem-layout {
+  wr8103_eeprom: eeprom@0 { reg = <0 0x1000>; };
+  wr8103_mac: macaddr@4 {
+   compatible = "mac-base";
+   reg = <4 6>;
+   #nvmem-cell-cells = <1>;
+  };
+ };
+};
+&gmac0 { nvmem-cells = <&wr8103_mac 0>; };
+&gmac1 { nvmem-cells = <&wr8103_mac 2>; };
+&wifi {
+ /delete-property/ mediatek,mtd-eeprom;
+ nvmem-cells = <&wr8103_eeprom>;
+ nvmem-cell-names = "eeprom";
+};
