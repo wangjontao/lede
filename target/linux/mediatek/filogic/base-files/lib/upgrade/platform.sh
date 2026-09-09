@@ -45,6 +45,7 @@ platform_do_upgrade() {
 			;;
 		esac
 		;;
+	aigo,ags21|\
 	cmcc,rax3000m-emmc|\
 	cmcc,rax3000me-emmc|\
 	cmcc,xr30-emmc|\
@@ -108,6 +109,7 @@ platform_copy_config() {
 			;;
 		esac
 		;;
+	aigo,ags21|\
 	cmcc,rax3000m-emmc|\
 	cmcc,rax3000me-emmc|\
 	cmcc,xr30-emmc|\
