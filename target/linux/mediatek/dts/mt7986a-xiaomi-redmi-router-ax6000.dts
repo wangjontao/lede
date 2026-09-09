@@ -215,10 +215,10 @@
 			 */
 			partition@600000 {
 				label = "ubi";
-				reg = <0x600000 0x6e00000>;
+				reg = <0x600000 0x1ea00000>;
 			};
 
-			/* last 12 MiB is reserved for NMBM bad block table */
+			/* last 16 MiB is reserved for NMBM bad block table */
 		};
 	};
 };

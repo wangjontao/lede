@@ -1,8 +1,8 @@
-name: CMCC XR30 256M NAND jontaoNpS LEDE
+name: Redmi AX6000 512M NAND jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-xr30-nand-256m]
+    branches: [jontaoNpS-redmi-ax6000-512m]
 permissions:
   contents: write
 concurrency:
@@ -26,8 +26,8 @@ jobs:
           path: |
             dl
             .ccache
-          key: jontao-nps-xr30-256m-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: jontao-nps-xr30-256m-${{ runner.os }}-
+          key: jontao-nps-redmi-ax6000-512m-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: jontao-nps-redmi-ax6000-512m-${{ runner.os }}-
       - name: Verify source, feeds and firmware configuration
         run: bash custom/device/prepare.sh
       - name: Download sources
@@ -44,10 +44,10 @@ jobs:
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
           test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
-          IMAGE=$(find bin/targets/mediatek/filogic -name '*cmcc_xr30-nand*sysupgrade.bin' -size +5M | head -n1)
-          MANIFEST=$(find bin/targets/mediatek/filogic -name '*cmcc_xr30-nand*.manifest' | head -n1)
+          IMAGE=$(find bin/targets/mediatek/filogic -name '*xiaomi_redmi-router-ax6000*sysupgrade.bin' -size +5M | head -n1)
+          MANIFEST=$(find bin/targets/mediatek/filogic -name '*xiaomi_redmi-router-ax6000*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
-          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
+          for p in kmod-mt7915e kmod-mt7986-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
@@ -55,10 +55,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: XR30-256M-NAND-${{ github.run_number }}
+          name: Redmi-AX6000-512M-${{ github.run_number }}
           path: |
             release/
-            bin/targets/mediatek/filogic/*cmcc_xr30-nand*
+            bin/targets/mediatek/filogic/*xiaomi_redmi-router-ax6000*
             build.log
             build.config
           retention-days: 30
@@ -68,9 +68,9 @@ jobs:
           path: |
             dl
             .ccache
-          key: jontao-nps-xr30-256m-${{ runner.os }}-${{ github.run_id }}
+          key: jontao-nps-redmi-ax6000-512m-${{ runner.os }}-${{ github.run_id }}
       - name: Publish verified firmware
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-xr30-256m-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "CMCC XR30 256M NAND jontaoNpS ${{ github.run_number }}" --notes 'CMCC XR30 256 MiB NAND, 238 MiB UBI at 0x580000; matches supplied 256ROM-238M U-Boot partition table. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. PassWall, PassWall2, HomeProxy, OpenClash, iStore, QuickStart, Argon and TTYD included.'
+          gh release create "jontaoNpS-redmi-ax6000-512m-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Redmi AX6000 512M NAND jontaoNpS ${{ github.run_number }}" --notes 'Redmi AX6000 512 MiB NAND; UBI 490 MiB at 0x600000; select 512rom-490m in U-Boot. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. PassWall, PassWall2, HomeProxy, OpenClash, iStore, QuickStart, Argon and TTYD included.'

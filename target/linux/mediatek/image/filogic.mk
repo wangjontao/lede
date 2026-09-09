@@ -1140,6 +1140,7 @@ endef
 TARGET_DEVICES += xiaomi_mi-router-wr30u
 
 define Device/xiaomi_redmi-router-ax6000
+  IMAGE_SIZE := 501760k
   DEVICE_VENDOR := Xiaomi
   DEVICE_MODEL := Redmi Router AX6000
   DEVICE_DTS := mt7986a-xiaomi-redmi-router-ax6000
