@@ -52,6 +52,7 @@ mediatek_setup_interfaces()
 	cetron,ct3003*|\
 	cmcc,a10*|\
 	fzs,5gcpe-p3|\
+	honor,fur-602|\
 	jcg,q30-pro|\
 	qihoo,360t7|\
 	tenbay,wr3000k)

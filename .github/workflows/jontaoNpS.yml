@@ -1,8 +1,8 @@
-name: Qihoo 360T7 jontaoNpS LEDE
+name: Honor FUR-602 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-360t7]
+    branches: [jontaoNpS-honor-fur-602]
 permissions:
   contents: write
 concurrency:
@@ -26,8 +26,8 @@ jobs:
           path: |
             dl
             .ccache
-          key: jontao-nps-qihoo_360t7-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: jontao-nps-qihoo_360t7-${{ runner.os }}-
+          key: jontao-nps-honor_fur-602-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: jontao-nps-honor_fur-602-${{ runner.os }}-
       - name: Verify source, feeds and firmware configuration
         run: bash custom/device/prepare.sh
       - name: Download sources
@@ -44,8 +44,8 @@ jobs:
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
           test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
-          IMAGE=$(find bin/targets/mediatek/filogic -name '*qihoo_360t7*sysupgrade.bin' -size +5M | head -n1)
-          MANIFEST=$(find bin/targets/mediatek/filogic -name '*qihoo_360t7*.manifest' | head -n1)
+          IMAGE=$(find bin/targets/mediatek/filogic -name '*honor_fur-602*sysupgrade.bin' -size +5M | head -n1)
+          MANIFEST=$(find bin/targets/mediatek/filogic -name '*honor_fur-602*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
           for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
@@ -55,10 +55,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Qihoo-360T7-${{ github.run_number }}
+          name: Honor-FUR-602-${{ github.run_number }}
           path: |
             release/
-            bin/targets/mediatek/filogic/*qihoo_360t7*
+            bin/targets/mediatek/filogic/*honor_fur-602*
             build.log
             build.config
           retention-days: 30
@@ -68,9 +68,9 @@ jobs:
           path: |
             dl
             .ccache
-          key: jontao-nps-qihoo_360t7-${{ runner.os }}-${{ github.run_id }}
+          key: jontao-nps-honor_fur-602-${{ runner.os }}-${{ github.run_id }}
       - name: Publish verified firmware
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-qihoo_360t7-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Qihoo 360T7 jontaoNpS ${{ github.run_number }}" --notes 'LEDE target qihoo_360t7; DTS mt7981b-qihoo-360t7; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. Package selection follows the first verified successful LEDE baseline.'
+          gh release create "jontaoNpS-honor_fur-602-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "Honor FUR-602 XT50 jontaoNpS ${{ github.run_number }}" --notes 'LEDE target honor_fur-602; DTS mt7981b-honor-fur-602; source-default mt76 WiFi; 114 MiB UBI layout. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. PassWall, PassWall2, HomeProxy, OpenClash, iStore, QuickStart, Argon and TTYD included.'
