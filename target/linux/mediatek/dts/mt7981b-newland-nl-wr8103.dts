@@ -6,9 +6,9 @@
  compatible = "newland,nl-wr8103", "mediatek,mt7981";
  memory { reg = <0 0x40000000 0 0x10000000>; };
 };
-&red_led { gpios = <&pio 11 GPIO_ACTIVE_LOW>; };
-&green_led { gpios = <&pio 12 GPIO_ACTIVE_LOW>; };
-/ { gpio-leds { led-1 { gpios = <&pio 10 GPIO_ACTIVE_LOW>; }; }; };
+&red_led { gpios = <&pio 10 GPIO_ACTIVE_LOW>; };
+&green_led { gpios = <&pio 11 GPIO_ACTIVE_LOW>; };
+/ { gpio-leds { led-1 { gpios = <&pio 12 GPIO_ACTIVE_LOW>; }; }; };
 &switch { ports {
  port@0 { label = "lan1"; };
  port@1 { label = "lan2"; };
