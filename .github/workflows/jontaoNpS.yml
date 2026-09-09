@@ -2,7 +2,7 @@ name: Xiaomi AX3000T jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-xiaomi-ax3000t]
+    branches: [jontaoNpS-xiaomi-ax3000t-5wifi]
 permissions:
   contents: write
 concurrency:
