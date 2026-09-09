@@ -2,8 +2,8 @@ name: RAX3000M NAND LEDE DulWiFi
 on:
   workflow_dispatch:
   push:
-    branches: [rax3000m-nand-dulwifi]
-    paths: ['custom/rax3000m-nand/**', 'files/**', 'feeds.conf.default', '.github/workflows/RAX3000M-NAND-DulWiFi.yml']
+    branches: [jontaoNpS-rax3000m-nand-5wifi]
+    paths: ['custom/rax3000m-nand/**', 'custom/device/**', 'files/**', 'feeds.conf.default', '.github/workflows/RAX3000M-NAND-DulWiFi.yml']
 permissions:
   contents: write
 concurrency:
