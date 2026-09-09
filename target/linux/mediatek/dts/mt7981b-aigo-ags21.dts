@@ -1,59 +1,28 @@
 // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 /dts-v1/;
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/leds/common.h>
-#include "mt7981.dtsi"
+#include "mt7981b-cmcc-rax3000m-emmc.dts"
 
 / {
-	model = "Aigo AGS21";
-	compatible = "aigo,ags21", "mediatek,mt7981";
-	aliases { serial0 = &uart0; led-boot = &led_red; led-failsafe = &led_red; led-running = &led_green; led-upgrade = &led_green; };
-	chosen { stdout-path = "serial0:115200n8"; bootargs-append = " root=PARTLABEL=rootfs rootwait rootfstype=squashfs,f2fs"; };
-	memory { reg = <0 0x40000000 0 0x40000000>; };
-	gpio-keys {
-		compatible = "gpio-keys";
-		reset { label = "reset"; linux,code = <KEY_RESTART>; gpios = <&pio 1 GPIO_ACTIVE_LOW>; };
-		wps { label = "wps"; linux,code = <KEY_WPS_BUTTON>; gpios = <&pio 0 GPIO_ACTIVE_HIGH>; };
-	};
-	gpio-leds {
-		compatible = "gpio-leds";
-		led_red: led-0 { color = <LED_COLOR_ID_RED>; function = LED_FUNCTION_STATUS; gpios = <&pio 6 GPIO_ACTIVE_LOW>; default-state = "on"; };
-		led_green: led-1 { color = <LED_COLOR_ID_GREEN>; function = LED_FUNCTION_STATUS; gpios = <&pio 4 GPIO_ACTIVE_LOW>; };
-		led-2 { label = "green:internet"; gpios = <&pio 29 GPIO_ACTIVE_LOW>; };
-	};
-	reg_1p8v: regulator-1p8v {
-		compatible = "regulator-fixed"; regulator-name = "fixed-1.8V";
-		regulator-min-microvolt = <1800000>; regulator-max-microvolt = <1800000>;
-		regulator-boot-on; regulator-always-on;
-	};
+    model = "Aigo AGS21";
+    compatible = "aigo,ags21", "mediatek,mt7981";
+    memory { reg = <0 0x40000000 0 0x40000000>; };
 };
 
-&eth {
-	status = "okay";
-	gmac0: mac@0 { compatible = "mediatek,eth-mac"; reg = <0>; phy-mode = "2500base-x"; fixed-link { speed = <2500>; full-duplex; pause; }; };
-	gmac1: mac@1 { compatible = "mediatek,eth-mac"; reg = <1>; phy-mode = "gmii"; phy-handle = <&int_gbe_phy>; };
-};
-&mdio_bus { switch: switch@1f { compatible = "mediatek,mt7531"; reg = <31>; reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>; }; };
+/* Factory partition and MAC offsets match the inspected AGS21 eMMC.
+ * Retain the RAX3000M eMMC pin, LED and storage configuration reported
+ * working on this hardware, and the four ports from the supplied FDT.
+ */
 &switch {
-	ports {
-		#address-cells = <1>; #size-cells = <0>;
-		port@0 { reg = <0>; label = "lan1"; };
-		port@1 { reg = <1>; label = "lan2"; };
-		port@2 { reg = <2>; label = "lan3"; };
-		port@3 { reg = <3>; label = "lan4"; };
-		port@6 { reg = <6>; ethernet = <&gmac0>; phy-mode = "2500base-x"; fixed-link { speed = <2500>; full-duplex; pause; }; };
-	};
+    ports {
+        port@0 { reg = <0>; label = "lan1"; };
+        port@1 { reg = <1>; label = "lan2"; };
+        port@2 { reg = <2>; label = "lan3"; };
+        port@3 { reg = <3>; label = "lan4"; };
+    };
 };
-&mmc0 {
-	bus-width = <8>; max-frequency = <104000000>; cap-mmc-highspeed; mmc-hs200-1_8v;
-	non-removable; no-sd; no-sdio; pinctrl-names = "default", "state_uhs";
-	pinctrl-0 = <&mmc0_pins_default>; pinctrl-1 = <&mmc0_pins_uhs>; vmmc-supply = <&reg_1p8v>; status = "okay";
+
+&wifi {
+    nvmem-cells = <&eeprom_factory_0>;
+    nvmem-cell-names = "eeprom";
+    status = "okay";
 };
-&pio {
-	mmc0_pins_default: mmc0-pins-default { mux { function = "flash"; groups = "emmc_45"; }; };
-	mmc0_pins_uhs: mmc0-pins-uhs { mux { function = "flash"; groups = "emmc_45"; }; };
-};
-&uart0 { status = "okay"; };
-&watchdog { status = "okay"; };
-&wifi { status = "okay"; };

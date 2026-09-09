@@ -2,6 +2,7 @@
 set -e
 [ -e /etc/dulwifi-firstboot.done ] && exit 0
 sleep 60
+(
 if [ ! -e /etc/dulwifi-wifi.done ]; then
     tries=0
     while :; do
@@ -29,6 +30,7 @@ if [ ! -e /etc/dulwifi-wifi.done ]; then
     wifi reload
     touch /etc/dulwifi-wifi.done
 fi
+) || logger -t dulwifi 'WiFi setup incomplete; continuing NPS setup'
 valid_mac() {
     printf '%s\n' "$1" | grep -Eq '^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$' &&
         [ "$1" != '00:00:00:00:00:00' ] && [ "$1" != 'ff:ff:ff:ff:ff:ff' ]
@@ -65,5 +67,6 @@ uci commit nps
 mkdir -p /tmp/etc
 /etc/init.d/nps enable
 /etc/init.d/nps restart
+[ -e /etc/dulwifi-wifi.done ] || exit 1
 touch /etc/dulwifi-firstboot.done
 logger -t dulwifi 'WiFi and NPS first-boot configuration complete'
