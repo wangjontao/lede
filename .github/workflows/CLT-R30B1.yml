@@ -2,7 +2,7 @@ name: CLT-R30B1 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-creatlentem_clt-r30b1-ubi]
+    branches: [jontaoNpS-clt-r30b1]
 permissions:
   contents: write
 concurrency:
@@ -44,8 +44,8 @@ jobs:
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
           test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
-          IMAGE=$(find bin/targets/mediatek/filogic -name '*cmcc_creatlentem_clt-r30b1-ubi*sysupgrade.bin' -size +5M | head -n1)
-          MANIFEST=$(find bin/targets/mediatek/filogic -name '*cmcc_creatlentem_clt-r30b1-ubi*.manifest' | head -n1)
+          IMAGE=$(find bin/targets/mediatek/filogic -name '*creatlentem_clt-r30b1-ubi*sysupgrade.itb' -size +5M | head -n1)
+          MANIFEST=$(find bin/targets/mediatek/filogic -name '*creatlentem_clt-r30b1-ubi*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
           for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
@@ -58,7 +58,7 @@ jobs:
           name: ZBT-CLT-R30B1-${{ github.run_number }}
           path: |
             release/
-            bin/targets/mediatek/filogic/*cmcc_creatlentem_clt-r30b1-ubi*
+            bin/targets/mediatek/filogic/*creatlentem_clt-r30b1-ubi*
             build.log
             build.config
           retention-days: 30
