@@ -1,6 +1,18 @@
 #!/bin/bash
 set -euo pipefail
-./scripts/feeds update -a
+# FEEDS_UPDATE_WITH_RETRY
+for attempt in 1 2 3 4; do
+  if ./scripts/feeds update -a; then
+    break
+  fi
+  if [ "$attempt" -eq 4 ]; then
+    echo "Feeds update failed after 4 attempts"
+    exit 1
+  fi
+  echo "Feeds update attempt $attempt failed; cleaning partial feeds and retrying..."
+  rm -rf feeds/*
+  sleep $((attempt * 10))
+done
 ./scripts/feeds install -a
 ./scripts/feeds install -f -p passwall luci-app-passwall
 ./scripts/feeds install -f -p passwall2 luci-app-passwall2
