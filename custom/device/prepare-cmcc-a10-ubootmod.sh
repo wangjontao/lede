@@ -44,12 +44,11 @@ sed -i '/^CONFIG_PACKAGE_luci-app-ddns=y$/d' "$SEED"
 sed -i '/^CONFIG_PACKAGE_luci-app-vlmcsd=y$/d' "$SEED"
 sed -i '/^CONFIG_PACKAGE_luci-app-vnstat=y$/d' "$SEED"
 
-printf '[A10-U-BootMod] applying DulWiFi/NPS defaults...\n'
-if [ -f "$FIRSTBOOT" ]; then
-  sed -E -i "s#option server_addr '[^']*:8024'#option server_addr 'nps.jontao.top:8024'#g" "$FIRSTBOOT"
-  sed -E -i "s#set nps\.@nps\[0\]\.server_addr='[^']*:8024'#set nps.@nps[0].server_addr='nps.jontao.top:8024'#g" "$FIRSTBOOT"
-fi
-grep -q 'nps.jontao.top:8024' "$FIRSTBOOT"
+printf '[A10-U-BootMod] validating DulWiFi/NPS defaults...\n'
+grep -q "server_addr='nps.jontao.top'" "$FIRSTBOOT"
+grep -q "server_port='8024'" "$FIRSTBOOT"
+grep -q "ssid='DulWiFi-2.4G'" "$FIRSTBOOT"
+grep -q "ssid='DulWiFi-5G'" "$FIRSTBOOT"
 
 printf '[A10-U-BootMod] validating reconstructed DTS...\n'
 grep -q 'compatible = "cmcc,a10-ubootmod", "mediatek,mt7981"' "$DTS"
