@@ -2,7 +2,7 @@ name: CMCC A10 jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-cmcc-a10]
+    branches: [jontaoNpS-cmcc-a10-v2]
 permissions:
   contents: write
 concurrency:
@@ -74,3 +74,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "jontaoNpS-cmcc_a10-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "CMCC A10 jontaoNpS ${{ github.run_number }}" --notes 'LEDE target cmcc_a10; DTS mt7981b-cmcc-a10; source-default mt76 WiFi. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. Package selection follows the first verified successful LEDE baseline.'
+
