@@ -2,6 +2,13 @@ name: CMCC A10 U-BootMod jontaoNpS LEDE
 
 on:
   workflow_dispatch:
+  push:
+    branches: [jontaoNpS-cmcc-a10-ubootmod]
+    paths:
+      - '.github/workflows/jontaoNpS.yml'
+      - 'custom/device/**'
+      - 'target/linux/mediatek/dts/mt7981b-cmcc-a10-ubootmod.dts'
+      - 'files/usr/libexec/dulwifi-firstboot'
 
 permissions:
   contents: write
@@ -25,7 +32,7 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup
           sudo apt-get update
-          sudo apt-get install -y build-essential ccache clang flex bison g++ gawk gcc-multilib gettext git libncurses-dev libssl-dev python3-setuptools rsync swig unzip zlib1g-dev file wget curl jq openssl zstd libelf-dev
+          sudo apt-get install -y build-essential ccache clang flex bison g++ gawk gcc-multilib gettext git libncurses-dev libssl-dev python3-setuptools rsync swig unzip zlib1g-dev file wget curl jq openssl zstd libelf-dev u-boot-tools
 
       - uses: actions/cache/restore@v4
         with:
@@ -54,13 +61,23 @@ jobs:
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
           test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
+
           IMAGE=$(find bin/targets/mediatek/filogic -name '*cmcc_a10-ubootmod*sysupgrade.itb' -size +5M | head -n1)
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*cmcc_a10-ubootmod*.manifest' | head -n1)
           test -n "$IMAGE" && test -n "$MANIFEST"
-          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
+
+          for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
+            grep -q "^$p " "$MANIFEST"
+          done
           grep -q 'nps.jontao.top:8024' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
+
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
+          dumpimage -l "$IMAGE" | tee release/FIT_INFO.txt
+          grep -q 'Image 0 (kernel-1)' release/FIT_INFO.txt
+          grep -q 'Image 1 (fdt-1)' release/FIT_INFO.txt
+          grep -q 'Image 2 (rootfs-1)' release/FIT_INFO.txt
+          sha256sum "$IMAGE" | tee release/FIRMWARE_SHA256.txt
           (cd release && sha256sum * > SHA256SUMS)
 
       - uses: actions/upload-artifact@v4
