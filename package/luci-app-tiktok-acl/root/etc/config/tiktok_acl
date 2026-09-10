@@ -1,0 +1,4 @@
+config global 'settings'
+	option dns_proxy '1'
+	option block_direct '1'
+	option ipv6_disabled '1'

@@ -1,0 +1,8 @@
+<%+header%>
+<h2><%:TikTok WiFi ACL%></h2>
+<p><%:Each source network is isolated and uses the selected proxy policy. Proxy failure blocks direct WAN access.%></p>
+<form method="post" action="<%=luci.dispatcher.build_url('admin/network/tiktok_acl')%>">
+<table class="table"><tr><th><%:WiFi%></th><th><%:Source network%></th><th><%:Policy%></th><th><%:IPv6 disabled%></th></tr>
+<% for i=1,10 do local n='tk'..i %><tr><td>A<%=i%></td><td><input name="net<%=i%>" value="<%=uci:get('network',n,'ipaddr') or ('172.16.'..i..'.1')%>"/></td><td><input name="policy<%=i%>" value="<%=uci:get('tiktok_acl',n,'policy') or 'global'%>"/></td><td><input type="checkbox" name="ipv6<%=i%>" checked="checked"/></td></tr><% end %></table>
+<input class="btn cbi-button cbi-button-save" type="submit" name="apply" value="<%:Save and apply%>"/>
+</form><%+footer%>
