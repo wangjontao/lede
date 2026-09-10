@@ -22,6 +22,7 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
+		bootargs = "root=/dev/ubiblock0_0 rootfstype=squashfs rootwait";
 	};
 
 	memory {
@@ -144,24 +145,9 @@
 
 			partition@580000 {
 				label = "ubi";
-				reg = <0x0580000 0x4000000>;
+				reg = <0x0580000 0x7280000>;
 			};
 
-			partition@4580000 {
-				label = "backup";
-				reg = <0x4580000 0x2000000>;
-			};
-
-			partition@6580000 {
-				label = "zrsave";
-				reg = <0x6580000 0x0100000>;
-			};
-
-			partition@6680000 {
-				label = "config2";
-				reg = <0x6680000 0x0100000>;
-				read-only;
-			};
 		};
 	};
 };
