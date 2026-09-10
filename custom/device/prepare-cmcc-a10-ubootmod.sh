@@ -5,6 +5,7 @@ PROFILE='cmcc_a10-ubootmod'
 DTS='target/linux/mediatek/dts/mt7981b-cmcc-a10-ubootmod.dts'
 IMAGE_MK='target/linux/mediatek/image/filogic.mk'
 TARGET_MK='target/linux/mediatek/Makefile'
+PLATFORM_UPGRADE='target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh'
 SEED='custom/device/config.seed'
 PREPARE='custom/device/prepare.sh'
 FIRSTBOOT='files/usr/libexec/dulwifi-firstboot'
@@ -33,6 +34,28 @@ fi
 
 grep -q '^define Device/cmcc_a10-ubootmod$' "$IMAGE_MK"
 grep -q 'external-with-rootfs' "$IMAGE_MK"
+
+printf '[A10-U-BootMod] wiring sysupgrade FIT image to the UBI fit volume...\n'
+if ! grep -q 'cmcc,a10-ubootmod)' "$PLATFORM_UPGRADE"; then
+python3 - "$PLATFORM_UPGRADE" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+marker = '\tcase "$board" in\n'
+insert = '''\tcase "$board" in
+\tcmcc,a10-ubootmod)
+\t\tCI_KERNPART="fit"
+\t\tnand_do_upgrade "$1"
+\t\t;;
+'''
+if marker not in s:
+    raise SystemExit('platform_do_upgrade case marker not found')
+s = s.replace(marker, insert, 1)
+p.write_text(s)
+PY
+fi
+grep -A3 'cmcc,a10-ubootmod)' "$PLATFORM_UPGRADE" | grep -q 'CI_KERNPART="fit"'
 
 printf '[A10-U-BootMod] switching build seed to dedicated profile...\n'
 sed -i 's/CONFIG_TARGET_mediatek_filogic_DEVICE_cmcc_a10=y/CONFIG_TARGET_mediatek_filogic_DEVICE_cmcc_a10-ubootmod=y/' "$SEED"
