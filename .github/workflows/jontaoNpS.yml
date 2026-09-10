@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -69,7 +69,8 @@ jobs:
           for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
             grep -q "^$p " "$MANIFEST"
           done
-          grep -q 'nps.jontao.top:8024' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
+          grep -q "server_addr='nps.jontao.top'" "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
+          grep -q "server_port='8024'" "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
 
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
