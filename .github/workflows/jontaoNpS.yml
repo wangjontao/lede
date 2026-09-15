@@ -1,8 +1,8 @@
-name: CMCC XR30 256M NAND jontaoNpS LEDE
+name: CMCC XR30 256M NAND 10WiFi jontaoNpS LEDE
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-xr30-nand-256m]
+    branches: [jontaoNpS-xr30-nand-256m-10wifi]
 permissions:
   contents: write
 concurrency:
@@ -63,12 +63,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-xr30-256m-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "CMCC XR30 256M NAND jontaoNpS ${{ github.run_number }}" --notes 'CMCC XR30 256 MiB NAND, 238 MiB UBI at 0x580000; matches supplied 256ROM-238M U-Boot partition table. 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. PassWall, PassWall2, HomeProxy, OpenClash, iStore, QuickStart, Argon and TTYD included.'
+          gh release create "jontaoNpS-xr30-256m-10wifi-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "CMCC XR30 256M NAND 10WiFi ${{ github.run_number }}" --notes 'CMCC XR30 256 MiB NAND, 238 MiB UBI at 0x580000. Management 192.168.7.1/@password@. Main WiFi A-2.4G and A-5G; A1-A8 on 5GHz and A9-A10 on 2.4GHz, password a1111111. Includes supplied PassWall and PassWall2 ACL templates, NPS 47.83.9.208:8024 and the usual software set.'
       - uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
         with:
-          name: XR30-256M-NAND-${{ github.run_number }}
+          name: XR30-256M-NAND-10WiFi-${{ github.run_number }}
           path: |
             release/
             bin/targets/mediatek/filogic/*cmcc_xr30-nand*
