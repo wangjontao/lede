@@ -49,6 +49,8 @@ jobs:
           test -n "$IMAGE" && test -n "$MANIFEST"
           for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
+          grep -q "option server_addr '47.83.9.208'" "${ROOT%/etc/shadow}/etc/config/nps"
+          grep -q "option vkey 'WANMAC'" "${ROOT%/etc/shadow}/etc/config/nps"
           mkdir -p release
           cp "$IMAGE" "$MANIFEST" build.config release/
           (cd release && sha256sum * > SHA256SUMS)
