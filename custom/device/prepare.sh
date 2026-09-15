@@ -1,5 +1,10 @@
 #!/bin/bash
 set -euo pipefail
+# Match the live fixed-parts U-Boot MTD layout, never the 114 MiB profile.
+grep -q 'reg = <0x0580000 0x6e80000>;' target/linux/mediatek/dts/mt7981b-jcg-q30-pro.dts
+grep -q 'reg = <0x4 0x6>;' target/linux/mediatek/dts/mt7981b-jcg-q30-pro.dts
+sed -n '/^define Device\/jcg_q30-pro$/,/^endef$/p' target/linux/mediatek/image/filogic.mk | grep -q 'IMAGE_SIZE := 113152k'
+sh -n target/linux/mediatek/filogic/base-files/etc/board.d/02_network
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 ./scripts/feeds install -f -p passwall luci-app-passwall

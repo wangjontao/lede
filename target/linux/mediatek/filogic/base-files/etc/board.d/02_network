@@ -119,6 +119,20 @@ mediatek_setup_macs()
 	bananapi,bpi-r4)
 		wan_mac=$(macaddr_add $(cat /sys/class/net/eth0/address) 1)
 		;;
+	jcg,q30-pro)
+		# Verified fixed-parts Factory: WLAN at 0x4, WAN=WLAN-2, LAN=WLAN-1.
+		local wifi_mac="$(mtd_get_mac_binary Factory 0x4)"
+		case "$wifi_mac" in
+			''|00:00:00:00:00:00|ff:ff:ff:ff:ff:ff)
+				logger -t board 'Invalid Q30 Factory MAC; refusing derived addresses'
+				;;
+			*)
+				wan_mac="$(macaddr_add "$wifi_mac" -2)"
+				lan_mac="$(macaddr_add "$wifi_mac" -1)"
+				label_mac="$wan_mac"
+				;;
+		esac
+		;;
 	glinet,gl-mt2500)
 		label_mac="$(get_mac_binary "/dev/mmcblk0boot1" 0xa)"
 		wan_mac="$label_mac"

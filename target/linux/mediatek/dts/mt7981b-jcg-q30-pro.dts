@@ -60,7 +60,7 @@
 		reg = <0>;
 		phy-mode = "2500base-x";
 
-		nvmem-cells = <&macaddr_lan>;
+		nvmem-cells = <&macaddr_factory_wifi>;
 		nvmem-cell-names = "mac-address";
 
 		fixed-link {
@@ -146,8 +146,6 @@
 		port@0 {
 			reg = <0>;
 			label = "wan";
-			nvmem-cells = <&macaddr_wan>;
-			nvmem-cell-names = "mac-address";
 		};
 
 		port@1 {
@@ -220,11 +218,8 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	macaddr_wan: macaddr@a0024 {
-		reg = <0xa0024 0x6>;
-	};
-
-	macaddr_lan: macaddr@a002a {
-		reg = <0xa002a 0x6>;
+	// EEPROM MAC is valid at 0x4; board setup derives WAN -2 and LAN -1.
+	macaddr_factory_wifi: macaddr@4 {
+		reg = <0x4 0x6>;
 	};
 };

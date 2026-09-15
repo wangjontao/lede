@@ -762,6 +762,7 @@ TARGET_DEVICES += imou_lc-hx3001
 define Device/jcg_q30-pro
   DEVICE_VENDOR := JCG
   DEVICE_MODEL := Q30 PRO
+  IMAGE_SIZE := 113152k
   DEVICE_DTS := mt7981b-jcg-q30-pro
   DEVICE_DTS_DIR := ../dts
   UBINIZE_OPTS := -E 5
