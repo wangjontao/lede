@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+#include "mt7981b-cmcc-rax3000m-nand.dts"
+
+/ {
+	model = "Newland NL-WR9103";
+	compatible = "newland,nl-wr9103", "mediatek,mt7981";
+
+	memory {
+		reg = <0 0x40000000 0 0x10000000>;
+	};
+};
+
+&green_led {
+	gpios = <&pio 9 GPIO_ACTIVE_LOW>;
+};
+
+&red_led {
+	gpios = <&pio 10 GPIO_ACTIVE_LOW>;
+};
+
+&{/gpio-leds} {
+	/delete-node/ led-1;
+};
+
+&switch {
+	ports {
+		/delete-node/ port@0;
+
+		port@1 {
+			label = "lan1";
+		};
+
+		port@2 {
+			label = "lan2";
+		};
+
+		port@3 {
+			reg = <3>;
+			label = "lan3";
+		};
+	};
+};
+
+&factory {
+	label = "Factory";
+};
