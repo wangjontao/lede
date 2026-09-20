@@ -15,7 +15,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000 ubi.mtd=ubi root=ubi0:rootfs rootfstype=squashfs rootwait";
 	};
 
 	leds {
@@ -61,45 +61,6 @@
 		#size-cells = <0>;
 	};
 
-	nmbm_spim_nand {
-		compatible = "generic,nmbm";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		lower-mtd-device = <&spi_nand>;
-		forced-create;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "BL2";
-				reg = <0x0 0x100000>;
-			};
-
-			partition@100000 {
-				label = "u-boot-env";
-				reg = <0x100000 0x80000>;
-			};
-
-			factory: partition@180000 {
-				label = "Factory";
-				reg = <0x180000 0x200000>;
-			};
-
-			partition@380000 {
-				label = "FIP";
-				reg = <0x380000 0x200000>;
-			};
-
-			partition@580000 {
-				label = "ubi";
-				reg = <0x580000 0x7200000>;
-			};
-		};
-	};
 };
 
 &uart0 {
@@ -185,6 +146,44 @@
 		spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4e 0x41 0x4e 0x44>;
 		spi-cal-addrlen = <5>;
 		spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
+
+		mediatek,nmbm;
+		mediatek,bmt-max-ratio = <1>;
+		mediatek,bmt-max-reserved-blocks = <64>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "bl2";
+				reg = <0x0 0x100000>;
+				read-only;
+			};
+
+			partition@100000 {
+				label = "u-boot-env";
+				reg = <0x100000 0x80000>;
+			};
+
+			factory: partition@180000 {
+				label = "factory";
+				reg = <0x180000 0x200000>;
+				read-only;
+			};
+
+			partition@380000 {
+				label = "fip";
+				reg = <0x380000 0x200000>;
+				read-only;
+			};
+
+			partition@580000 {
+				label = "ubi";
+				reg = <0x580000 0x7200000>;
+			};
+		};
 	};
 };
 
