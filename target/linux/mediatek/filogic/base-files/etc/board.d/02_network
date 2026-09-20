@@ -8,6 +8,9 @@ mediatek_setup_interfaces()
 	local board="$1"
 
 	case $board in
+	gielink,g33pro*)
+		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+		;;
 	abt,asr3000|\
 	cmcc,rax3000m*|\
 	cmcc,xr30-nand|\

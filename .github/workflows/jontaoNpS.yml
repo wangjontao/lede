@@ -44,13 +44,13 @@ jobs:
           ROOT=$(find build_dir -path '*/root-mediatek/etc/shadow' -type f | head -n1)
           test -n "$ROOT"
           test "$(awk -F: '$1=="root" {print $2}' "$ROOT")" = "$(awk -F: '$1=="root" {print $2}' files/etc/shadow)"
-          IMAGE=$(find bin/targets/mediatek/filogic -name '*gielink_g33pro-v1*sysupgrade.bin' -size +5M | head -n1)
+          mapfile -t IMAGES < <(find bin/targets/mediatek/filogic -type f \( -name '*gielink_g33pro-v1*factory.bin' -o -name '*gielink_g33pro-v1*sysupgrade.bin' \) -size +5M)
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*gielink_g33pro-v1*.manifest' | head -n1)
-          test -n "$IMAGE" && test -n "$MANIFEST"
+          test "${#IMAGES[@]}" -gt 0 && test -n "$MANIFEST"
           for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^$p " "$MANIFEST"; done
           grep -q '47.83.9.208' "${ROOT%/etc/shadow}/usr/libexec/dulwifi-firstboot"
           mkdir -p release
-          cp "$IMAGE" "$MANIFEST" build.config release/
+          cp "${IMAGES[@]}" "$MANIFEST" build.config release/
           (cd release && sha256sum * > SHA256SUMS)
       - uses: actions/upload-artifact@v4
         if: always()

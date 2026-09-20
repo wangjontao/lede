@@ -770,7 +770,9 @@ define Device/gielink_g33pro-v1
   PAGESIZE := 2048
   KERNEL_IN_UBI := 1
   DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
-  IMAGE_SIZE := 114688k
+  IMAGE_SIZE := 116736k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += gielink_g33pro-v1
