@@ -38,6 +38,13 @@ jobs:
           mkdir -p .ccache
           ccache -M 5G
           make -j$(nproc) 2>&1 | tee build.log || make -j1 V=s 2>&1 | tee -a build.log
+          KERNEL_MT7530="$(find build_dir/target-*/linux-mediatek_filogic/linux-6.12*/drivers/net/dsa/mt7530.c -type f | head -n1)"
+          test -n "$KERNEL_MT7530" || { echo "ERROR: prepared mt7530.c not found"; exit 1; }
+          grep -A3 'irq = irq_find_mapping(priv->irq_domain, p);' "$KERNEL_MT7530" | grep -q 'if (irq)' || {
+            echo "ERROR: MT7530 unmapped-IRQ guard patch was not applied"
+            exit 1
+          }
+          echo "Verified MT7530 unmapped-IRQ guard in prepared Linux source."
       - name: Validate and collect
         run: |
           set -eu
