@@ -1,5 +1,19 @@
 #!/bin/bash
 set -euo pipefail
+
+fail() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
+
+require_grep() {
+  local pattern="$1"
+  local file="$2"
+  local label="$3"
+  grep -q -- "$pattern" "$file" || fail "$label"
+  echo "OK: $label"
+}
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 ./scripts/feeds install -f -p passwall luci-app-passwall
@@ -8,38 +22,40 @@ set -euo pipefail
 ./scripts/feeds install -f -p nas_packages quickstart
 ./scripts/feeds install -f -p nas_luci luci-app-quickstart
 ./scripts/feeds install -f -p openclash luci-app-openclash
-grep -q 'PKG_VERSION:=26.3.6' feeds/passwall/luci-app-passwall/Makefile
-grep -q 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile
+
+require_grep 'PKG_VERSION:=26.3.6' feeds/passwall/luci-app-passwall/Makefile "Passwall 26.3.6"
+require_grep 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile "Passwall2 26.3.5"
+
 cp custom/device/config.seed .config
 make defconfig
-grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_gielink_g33pro-v1=yfor p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
-HASH="$(openssl passwd -1 'password')"
-cp package/base-files/files/etc/shadow files/etc/shadow
-sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
-printf '%s
-' "$HASH" > files/etc/dulwifi-root.hash
-chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
-chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboot files/usr/libexec/dulwifi-firstboot
-./scripts/diffconfig.sh > build.config
- .config
+
+require_grep '^CONFIG_TARGET_mediatek_filogic_DEVICE_gielink_g33pro-v1=y$' .config "G33Pro target selected"
+
 DTS="target/linux/mediatek/dts/mt7981-gielink-g33pro-v1.dts"
 NET="target/linux/mediatek/filogic/base-files/etc/board.d/02_network"
-grep -q 'compatible = "mediatek,mt7531";' "$DTS"
-grep -q 'label = "lan1";' "$DTS"
-grep -q 'label = "lan2";' "$DTS"
-grep -q 'label = "lan3";' "$DTS"
-grep -q 'phy-handle = <&int_gbe_phy>;' "$DTS"
-grep -q 'led-running = &status_green_led;' "$DTS"
-grep -q 'gpios = <&pio 10 GPIO_ACTIVE_HIGH>;' "$DTS"
-grep -q 'gpios = <&pio 11 GPIO_ACTIVE_HIGH>;' "$DTS"
-grep -q 'gpios = <&pio 12 GPIO_ACTIVE_HIGH>;' "$DTS"
-grep -q 'ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "eth1"' "$NET"
-for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
+
+require_grep 'compatible = "mediatek,mt7531";' "$DTS" "MT7531 DSA switch"
+require_grep 'label = "lan1";' "$DTS" "LAN1 DSA port"
+require_grep 'label = "lan2";' "$DTS" "LAN2 DSA port"
+require_grep 'label = "lan3";' "$DTS" "LAN3 DSA port"
+require_grep 'phy-handle = <&int_gbe_phy>;' "$DTS" "WAN internal GbE PHY"
+require_grep 'led-running = &status_green_led;' "$DTS" "running LED mapped to green"
+require_grep 'gpios = <&pio 10 GPIO_ACTIVE_HIGH>;' "$DTS" "red LED active-high"
+require_grep 'gpios = <&pio 11 GPIO_ACTIVE_HIGH>;' "$DTS" "green LED active-high"
+require_grep 'gpios = <&pio 12 GPIO_ACTIVE_HIGH>;' "$DTS" "blue LED active-high"
+require_grep 'ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "eth1"' "$NET" "LAN/WAN DSA mapping"
+
+for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
+  grep -q "^CONFIG_PACKAGE_${p}=y$" .config || fail "Required package missing: $p"
+  echo "OK: package $p"
+done
+
 HASH="$(openssl passwd -1 'password')"
 cp package/base-files/files/etc/shadow files/etc/shadow
 sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
-printf '%s
-' "$HASH" > files/etc/dulwifi-root.hash
+printf '%s\n' "$HASH" > files/etc/dulwifi-root.hash
 chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
 chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboot files/usr/libexec/dulwifi-firstboot
+
 ./scripts/diffconfig.sh > build.config
+echo "G33Pro source/config validation passed."
