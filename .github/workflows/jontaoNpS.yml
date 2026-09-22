@@ -80,5 +80,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "jontaoNpS-gielink-g33pro-v1-lede-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "GIELINK G33Pro V1.3 jontaoNpS LEDE ${{ github.run_number }}" --notes 'LEDE target gielink_g33pro-v1; G33Pro V1.3 China Unicom layout: stock MT7531 LAN1-LAN4 plus eth1 WAN; Q30Pro-validated UBI at 0x580000, raw size 0x7000000 (112 MiB, about 110 MiB usable). 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. Package selection follows the verified LEDE jontaoNpS baseline.'
+          gh release create "jontaoNpS-gielink-g33pro-v1-lede-${{ github.run_number }}" release/* --target "$GITHUB_SHA" --title "GIELINK G33Pro V1.3 jontaoNpS LEDE ${{ github.run_number }}" --notes 'LEDE target gielink_g33pro-v1; G33Pro V1.3 China Unicom layout: Q30Pro-style MT7531 port0 WAN + port1/2/3 LAN1/LAN2/LAN3; UBI at 0x580000, raw size 0x7000000 (112 MiB, about 110 MiB usable). 192.168.9.1/password; DulWiFi-2.4G and DulWiFi-5G/password. NPS uses first-boot WAN MAC key and defaults to 47.83.9.208:8024. Package selection follows the verified LEDE jontaoNpS baseline.'
 

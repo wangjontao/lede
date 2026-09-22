@@ -68,28 +68,11 @@
 	status = "okay";
 
 	gmac0: mac@0 {
-		/* MT7531 CPU/LAN uplink */
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
 		phy-mode = "2500base-x";
 
 		nvmem-cells = <&macaddr_lan>;
-		nvmem-cell-names = "mac-address";
-
-		fixed-link {
-			speed = <2500>;
-			full-duplex;
-			pause;
-		};
-	};
-
-	gmac1: mac@1 {
-		/* Stock G33Pro V1.3 standalone WAN */
-		compatible = "mediatek,eth-mac";
-		reg = <1>;
-		phy-mode = "2500base-x";
-
-		nvmem-cells = <&macaddr_wan>;
 		nvmem-cell-names = "mac-address";
 
 		fixed-link {
@@ -117,24 +100,27 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		/* G33Pro V1.3 physical jacks follow JCG Q30Pro layout. */
 		port@0 {
 			reg = <0>;
-			label = "lan1";
+			label = "wan";
+			nvmem-cells = <&macaddr_wan>;
+			nvmem-cell-names = "mac-address";
 		};
 
 		port@1 {
 			reg = <1>;
-			label = "lan2";
+			label = "lan1";
 		};
 
 		port@2 {
 			reg = <2>;
-			label = "lan3";
+			label = "lan2";
 		};
 
 		port@3 {
 			reg = <3>;
-			label = "lan4";
+			label = "lan3";
 		};
 
 		port@6 {
