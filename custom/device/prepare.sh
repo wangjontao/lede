@@ -7,7 +7,17 @@ set -euo pipefail
 ./scripts/feeds install -f -p istore luci-app-store
 ./scripts/feeds install -f -p nas_packages quickstart
 ./scripts/feeds install -f -p nas_luci luci-app-quickstart
-./scripts/feeds install -f -p openclash luci-app-openclash
+
+# OpenClash is fetched as a pinned archive instead of a full git feed.
+# This avoids long-running GitHub pack downloads that can terminate with early EOF.
+rm -rf package/luci-app-openclash package/feeds/luci/luci-app-openclash /tmp/openclash /tmp/openclash.tar.gz
+curl -fL --retry 8 --retry-delay 3 --retry-all-errors --connect-timeout 20 \
+  "https://codeload.github.com/vernesong/OpenClash/tar.gz/c3a33c1d3407956fdf8f0e0b7c1a4c52e6ad9593" \
+  -o /tmp/openclash.tar.gz
+mkdir -p /tmp/openclash
+tar -xzf /tmp/openclash.tar.gz --strip-components=1 -C /tmp/openclash
+cp -a /tmp/openclash/luci-app-openclash package/
+test -f package/luci-app-openclash/Makefile
 grep -q 'PKG_VERSION:=26.3.6' feeds/passwall/luci-app-passwall/Makefile
 grep -q 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile
 cp custom/device/config.seed .config
