@@ -8,5 +8,4 @@ src-git nas_packages https://github.com/linkease/nas-packages.git^b51237b6929f5c
 src-git nas_luci https://github.com/linkease/nas-packages-luci.git^c3af221503298abb6b92a2fc2a31f78f1fec13e4
 src-git passwall https://github.com/Openwrt-Passwall/openwrt-passwall.git^6c45f659251fd91ac0e414db94710288ab9cda61
 src-git passwall2 https://github.com/Openwrt-Passwall/openwrt-passwall2.git^c613dc317bec3e3bf6ac920177fbe1e69495d1c8
-src-git openclash https://github.com/vernesong/OpenClash.git^c3a33c1d3407956fdf8f0e0b7c1a4c52e6ad9593
 src-git pwdeps https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git^3e11c458c552aefd348232c627fd1ed9f8f08e41
