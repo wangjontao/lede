@@ -14,9 +14,9 @@ and requires 4-bit ECC per 512 bytes.
 ---
  drivers/mtd/nand/spi/Makefile |  2 +-
  drivers/mtd/nand/spi/core.c   |  1 +
- drivers/mtd/nand/spi/gsto.c   | 91 +++++++++++++++++++++++++++++++++++
+ drivers/mtd/nand/spi/gsto.c   | 82 +++++++++++++++++++++++++++++++++
  include/linux/mtd/spinand.h   |  1 +
- 4 files changed, 94 insertions(+), 1 deletion(-)
+ 4 files changed, 85 insertions(+), 1 deletion(-)
  create mode 100644 drivers/mtd/nand/spi/gsto.c
 
 --- a/drivers/mtd/nand/spi/Makefile
@@ -39,7 +39,7 @@ and requires 4-bit ECC per 512 bytes.
  	&paragon_spinand_manufacturer,
 --- /dev/null
 +++ b/drivers/mtd/nand/spi/gsto.c
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,82 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * GSTO SPI-NAND support
