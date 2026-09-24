@@ -8,9 +8,9 @@ hardware revisions.
 ---
  drivers/mtd/nand/spi/Makefile |  1 +
  drivers/mtd/nand/spi/core.c   |  1 +
- drivers/mtd/nand/spi/gsto.c   | 95 +++++++++++++++++++++++++++++++++++
+ drivers/mtd/nand/spi/gsto.c   | 83 +++++++++++++++++++++++++++++++++
  include/linux/mtd/spinand.h   |  1 +
- 4 files changed, 98 insertions(+)
+ 4 files changed, 86 insertions(+)
  create mode 100644 drivers/mtd/nand/spi/gsto.c
 
 --- a/drivers/mtd/nand/spi/Makefile
@@ -32,7 +32,7 @@ hardware revisions.
  	&paragon_spinand_manufacturer,
 --- /dev/null
 +++ b/drivers/mtd/nand/spi/gsto.c
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,83 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * GSTO SPI-NAND support
