@@ -26,35 +26,35 @@ cp custom/device/config.seed .config
 make defconfig
 grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_philips_hy3000=y$' .config
 for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }; done
-HASH="$(openssl passwd -1 'password')"
+HASH="$(openssl passwd -1 '@password@')"
 cp package/base-files/files/etc/shadow files/etc/shadow
 sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
 printf '%s\n' "$HASH" > files/etc/dulwifi-root.hash
 chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
 chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboot files/usr/libexec/dulwifi-firstboot
 
-# HY3000 10WiFi resources and delayed one-time startup service
-mkdir -p files/root/tiktok10wifi-files files/etc/init.d files/etc/rc.d
-cp custom/device/setup_tiktok_10wifi.sh files/root/setup_tiktok_10wifi_with_configs.sh
-cp custom/device/passwall files/root/tiktok10wifi-files/passwall
-cp custom/device/passwall2 files/root/tiktok10wifi-files/passwall2
+# HY3000 5WiFi resources and delayed one-time startup service
+mkdir -p files/root/tiktok5wifi-files files/etc/init.d files/etc/rc.d
+cp custom/device/setup_tiktok_5wifi.sh files/root/setup_tiktok_10wifi_with_configs.sh
+cp custom/device/passwall files/root/tiktok5wifi-files/passwall
+cp custom/device/passwall2 files/root/tiktok5wifi-files/passwall2
 chmod 700 files/root/setup_tiktok_10wifi_with_configs.sh
-chmod 600 files/root/tiktok10wifi-files/passwall files/root/tiktok10wifi-files/passwall2
-cat > files/etc/init.d/tiktok10wifi-firstboot <<'EOF'
+chmod 600 files/root/tiktok5wifi-files/passwall files/root/tiktok5wifi-files/passwall2
+cat > files/etc/init.d/tiktok5wifi-firstboot <<'EOF'
 #!/bin/sh /etc/rc.common
 START=99
 STOP=10
 start() {
-  [ -e /etc/tiktok10wifi-firstboot.done ] && return 0
+  [ -e /etc/tiktok5wifi-firstboot.done ] && return 0
   (
     sleep 60
-    if /root/setup_tiktok_10wifi_with_configs.sh >>/root/tiktok10wifi-firstboot.log 2>&1; then
-      touch /etc/tiktok10wifi-firstboot.done
-      /etc/init.d/tiktok10wifi-firstboot disable
+    if /root/setup_tiktok_10wifi_with_configs.sh >>/root/tiktok5wifi-firstboot.log 2>&1; then
+      touch /etc/tiktok5wifi-firstboot.done
+      /etc/init.d/tiktok5wifi-firstboot disable
     fi
   ) &
 }
 EOF
-chmod 755 files/etc/init.d/tiktok10wifi-firstboot
-ln -sf ../init.d/tiktok10wifi-firstboot files/etc/rc.d/S99tiktok10wifi-firstboot
+chmod 755 files/etc/init.d/tiktok5wifi-firstboot
+ln -sf ../init.d/tiktok5wifi-firstboot files/etc/rc.d/S99tiktok5wifi-firstboot
 ./scripts/diffconfig.sh > build.config
