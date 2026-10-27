@@ -1,4 +1,4 @@
-name: JuLiang OS Matrix (MT7981/MT7986)
+﻿name: JuLiang OS Matrix (MT7981/MT7986)
 
 # Runs on push. Which groups are built is read from custom/matrix/group.txt
 # (g1..g4 or all), so a single file edit selects the run without needing
@@ -35,8 +35,8 @@ jobs:
           set -eu
           group="$(tr -d '[:space:]' < custom/matrix/group.txt 2>/dev/null || echo all)"
           case "$group" in
-            all) list='["g1","g2","g3","g4","g5"]' ;;
-            g1|g2|g3|g4|g5) list="[\"$group\"]" ;;
+            all) list='["g1","g2","g3","g4","g5","g6"]' ;;
+            g1|g2|g3|g4|g5|g6) list="[\"$group\"]" ;;
             *) echo "Unknown group '$group' in custom/matrix/group.txt" >&2; exit 1 ;;
           esac
           echo "matrix=$list" >> "$GITHUB_OUTPUT"
@@ -119,3 +119,4 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "JuLiang OS Matrix ${GITHUB_RUN_NUMBER}" \
             --notes 'Multi-device JuLiang OS build. Each image: management 192.168.7.1, root @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, br-live 172.16.1.1/24, PassWall2 + HomeProxy, SQM (cake), WAN DHCP lease guard, no IPv6.'
+
