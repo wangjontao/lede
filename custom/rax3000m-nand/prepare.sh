@@ -16,7 +16,7 @@ done
 for p in tc kmod-sched-core kmod-sched-cake kmod-ifb sqm-scripts luci-app-sqm; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "SQM package missing: $p"; exit 1; }
 done
-HASH="$(openssl passwd -1 'password')"
+HASH="$(openssl passwd -1 '@password@')"
 cp package/base-files/files/etc/shadow files/etc/shadow
 sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
 printf '%s\n' "$HASH" > files/etc/dulwifi-root.hash
@@ -35,27 +35,8 @@ for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard \
     [ -e "files/$f" ] && chmod 755 "files/$f"
 done
 
-mkdir -p files/root/live-wifi-files files/etc/init.d files/etc/rc.d
-cp custom/device/setup_live_wifi.sh files/root/setup_live_wifi.sh
+mkdir -p files/root/live-wifi-files
 cp custom/device/passwall2 files/root/live-wifi-files/passwall2
-chmod 700 files/root/setup_live_wifi.sh
 chmod 600 files/root/live-wifi-files/passwall2
-cat > files/etc/init.d/live-wifi-firstboot <<'EOF'
-#!/bin/sh /etc/rc.common
-START=99
-STOP=10
-start() {
-    [ -e /etc/live-wifi.done ] && return 0
-    (
-        sleep 60
-        if /root/setup_live_wifi.sh >>/root/live-wifi.log 2>&1; then
-            touch /etc/live-wifi.done
-            /etc/init.d/live-wifi-firstboot disable
-        fi
-    ) &
-}
-EOF
-chmod 755 files/etc/init.d/live-wifi-firstboot
-ln -sf ../init.d/live-wifi-firstboot files/etc/rc.d/S99live-wifi-firstboot
 ./scripts/diffconfig.sh > build.config
 for feed in feeds/*/.git; do [ -d "$feed" ] && printf '%s %s\n' "$feed" "$(git -C "${feed%/.git}" rev-parse HEAD)"; done > feeds.lock.actual

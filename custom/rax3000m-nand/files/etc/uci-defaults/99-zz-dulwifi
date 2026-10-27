@@ -1,16 +1,124 @@
 #!/bin/sh
+# JuLiang OS first-boot defaults: identity, LAN, main WiFi and live WiFi.
+# Everything here is baked into the image; a fresh flash comes up configured.
 set -e
-uci set network.lan.ipaddr='192.168.9.1'
-uci set network.lan.netmask='255.255.255.0'
-uci set system.@system[0].hostname='DulWiFi-Tk'
+
+LAN_IP='192.168.7.1'
+HOSTNAME='JuLiang-OS'
+WIFI_KEY='66668888'
+LIVE_NET='jfa25w1'
+LIVE_DEV='live_dev'
+LIVE_BR='br-live'
+LIVE_IP='172.16.1.1'
+
+# --- identity -------------------------------------------------------------
+uci set system.@system[0].hostname="$HOSTNAME"
+uci -q delete system.@system[0].description
+uci set system.@system[0].description='JuLiang OS'
 uci set luci.main.mediaurlbase='/luci-static/argon'
+
+# --- LAN ------------------------------------------------------------------
+uci set network.lan.ipaddr="$LAN_IP"
+uci set network.lan.netmask='255.255.255.0'
+
+# --- main WiFi: one SSID per band, same passphrase ------------------------
+uci -q delete wireless.main24
+uci set wireless.main24='wifi-iface'
+uci set wireless.main24.device='radio0'
+uci set wireless.main24.network='lan'
+uci set wireless.main24.mode='ap'
+uci set wireless.main24.ssid='JuLiang OS-2.4G'
+uci set wireless.main24.encryption='psk2+ccmp'
+uci set wireless.main24.key="$WIFI_KEY"
+uci set wireless.main24.disabled='0'
+
+uci -q delete wireless.main5
+uci set wireless.main5='wifi-iface'
+uci set wireless.main5.device='radio1'
+uci set wireless.main5.network='lan'
+uci set wireless.main5.mode='ap'
+uci set wireless.main5.ssid='JuLiang OS-5G'
+uci set wireless.main5.encryption='psk2+ccmp'
+uci set wireless.main5.key="$WIFI_KEY"
+uci set wireless.main5.disabled='0'
+
+# --- live WiFi: dedicated bridge, same passphrase -------------------------
+uci -q delete network.$LIVE_DEV
+uci set network.$LIVE_DEV='device'
+uci set network.$LIVE_DEV.name="$LIVE_BR"
+uci set network.$LIVE_DEV.type='bridge'
+uci set network.$LIVE_DEV.bridge_empty='1'
+
+uci -q delete network.$LIVE_NET
+uci set network.$LIVE_NET='interface'
+uci set network.$LIVE_NET.device="$LIVE_BR"
+uci set network.$LIVE_NET.proto='static'
+uci set network.$LIVE_NET.ipaddr="$LIVE_IP"
+uci set network.$LIVE_NET.netmask='255.255.255.0'
+uci set network.$LIVE_NET.delegate='0'
+
+uci -q delete dhcp.$LIVE_NET
+uci set dhcp.$LIVE_NET='dhcp'
+uci set dhcp.$LIVE_NET.interface="$LIVE_NET"
+uci set dhcp.$LIVE_NET.start='100'
+uci set dhcp.$LIVE_NET.limit='150'
+uci set dhcp.$LIVE_NET.leasetime='12h'
+uci set dhcp.$LIVE_NET.ra='disabled'
+uci set dhcp.$LIVE_NET.dhcpv6='disabled'
+uci set dhcp.$LIVE_NET.ndp='disabled'
+uci add_list dhcp.$LIVE_NET.dhcp_option="3,$LIVE_IP"
+uci add_list dhcp.$LIVE_NET.dhcp_option="6,$LIVE_IP"
+
+uci -q delete wireless.live24
+uci set wireless.live24='wifi-iface'
+uci set wireless.live24.device='radio0'
+uci set wireless.live24.network="$LIVE_NET"
+uci set wireless.live24.mode='ap'
+uci set wireless.live24.ssid='Live-2.4G'
+uci set wireless.live24.encryption='psk2+ccmp'
+uci set wireless.live24.key="$WIFI_KEY"
+uci set wireless.live24.disabled='0'
+uci set wireless.live24.isolate='1'
+
+uci -q delete wireless.live5g
+uci set wireless.live5g='wifi-iface'
+uci set wireless.live5g.device='radio1'
+uci set wireless.live5g.network="$LIVE_NET"
+uci set wireless.live5g.mode='ap'
+uci set wireless.live5g.ssid='Live-5G'
+uci set wireless.live5g.encryption='psk2+ccmp'
+uci set wireless.live5g.key="$WIFI_KEY"
+uci set wireless.live5g.disabled='0'
+uci set wireless.live5g.isolate='1'
+
+uci -q delete firewall.$LIVE_NET
+uci set firewall.$LIVE_NET='zone'
+uci set firewall.$LIVE_NET.name="$LIVE_NET"
+uci set firewall.$LIVE_NET.input='ACCEPT'
+uci set firewall.$LIVE_NET.output='ACCEPT'
+uci set firewall.$LIVE_NET.forward='REJECT'
+uci add_list firewall.$LIVE_NET.network="$LIVE_NET"
+
 uci commit network
+uci commit dhcp
+uci commit wireless
+uci commit firewall
 uci commit system
 uci commit luci
-HASH="$(cat /etc/dulwifi-root.hash)"
-[ -n "$HASH" ]
-sed -i "s#^root:[^:]*:#root:${HASH}:#" /etc/shadow
-chmod 600 /etc/shadow
-rm -f /etc/dulwifi-root.hash
+
+# --- optional proxy configuration carried in the image --------------------
+if [ -f /root/live-wifi-files/passwall2 ]; then
+    cp -a /etc/config/passwall2 /etc/config/passwall2.bak-first 2>/dev/null || true
+    cp /root/live-wifi-files/passwall2 /etc/config/passwall2
+fi
+
+# --- root password --------------------------------------------------------
+HASH="$(cat /etc/dulwifi-root.hash 2>/dev/null || true)"
+if [ -n "$HASH" ]; then
+    sed -i "s#^root:[^:]*:#root:${HASH}:#" /etc/shadow
+    chmod 600 /etc/shadow
+    rm -f /etc/dulwifi-root.hash
+fi
+
 /etc/init.d/dulwifi-firstboot enable
 exit 0
