@@ -8,25 +8,35 @@ CONFIG_PACKAGE_dnsmasq-full=y
 # CONFIG_PACKAGE_dnsmasq is not set
 CONFIG_PACKAGE_firewall4=y
 # CONFIG_PACKAGE_firewall is not set
-CONFIG_PACKAGE_luci-app-passwall2=y
-CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_luci-app-store=y
-CONFIG_PACKAGE_taskd=y
-CONFIG_PACKAGE_luci-lib-taskd=y
-CONFIG_PACKAGE_luci-lib-xterm=y
-CONFIG_PACKAGE_quickstart=y
-CONFIG_PACKAGE_luci-app-quickstart=y
+
+# Themes and LuCI applications present on the running device.
 CONFIG_PACKAGE_luci-theme-argon=y
 CONFIG_PACKAGE_luci-app-argon-config=y
-CONFIG_PACKAGE_luci-app-ttyd=y
-CONFIG_PACKAGE_luci-app-nps=y
-CONFIG_PACKAGE_npc=y
-CONFIG_PACKAGE_luci-app-upnp=y
-CONFIG_PACKAGE_luci-app-wol=y
+CONFIG_PACKAGE_luci-app-arpbind=y
 CONFIG_PACKAGE_luci-app-autoreboot=y
+CONFIG_PACKAGE_luci-app-filetransfer=y
+CONFIG_PACKAGE_luci-app-package-manager=y
+CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-lib-xterm=y
+
+# Proxying: the device runs PassWall2 and HomeProxy only.
+# PassWall 1, OpenClash, iStore and QuickStart are deliberately absent.
+CONFIG_PACKAGE_luci-app-passwall2=y
+CONFIG_PACKAGE_luci-i18n-passwall2-zh-cn=y
+CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y
+
+# NPS intranet tunnel client.
+CONFIG_PACKAGE_luci-app-nps=y
+CONFIG_PACKAGE_luci-i18n-nps-zh-cn=y
+CONFIG_PACKAGE_npc=y
+
+# Operator tools.
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_htop=y
 CONFIG_PACKAGE_tcpdump=y
+CONFIG_PACKAGE_ttyd=y
 
 # Streaming QoS: WAN shaping with cake (SQM). tc is a subpackage of iproute2;
 # the scheduler modules are defined in package/kernel/linux/modules/netsupport.mk.

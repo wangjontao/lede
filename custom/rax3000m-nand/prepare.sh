@@ -4,15 +4,12 @@ set -euo pipefail
 ./scripts/feeds install -a
 # Force only the requested versions over the ordinary LuCI feed copies.
 ./scripts/feeds install -f -p passwall2 luci-app-passwall2
-./scripts/feeds install -f -p istore luci-app-store
-./scripts/feeds install -f -p nas_packages quickstart
-./scripts/feeds install -f -p nas_luci luci-app-quickstart
 grep -q 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile
 grep -q 'PKG_RELEASE:=1' feeds/passwall2/luci-app-passwall2/Makefile
 cp custom/rax3000m-nand/config.seed .config
 make defconfig
 grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_cmcc_rax3000m-nand=y$' .config
-for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall2 luci-app-homeproxy luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
+for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall2 luci-app-homeproxy luci-app-filetransfer luci-app-package-manager luci-theme-argon luci-app-ttyd luci-app-nps npc; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }
 done
 # Streaming QoS: fail the build instead of silently producing an image without cake.
@@ -25,6 +22,18 @@ sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
 printf '%s\n' "$HASH" > files/etc/dulwifi-root.hash
 chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
 chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboot files/usr/libexec/dulwifi-firstboot
+
+# Overlay captured from the running system: JuLiang dashboard, NPS hooks, hotplug.
+mkdir -p files
+cp -a custom/rax3000m-nand/files/. files/
+for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard \
+         etc/uci-defaults/96-juliang-dashboard etc/uci-defaults/99-enable-nps-wan-mac etc/uci-defaults/99-zz-dulwifi \
+         etc/hotplug.d/iface/50-arpbind etc/hotplug.d/iface/98-passwall2 etc/hotplug.d/iface/99-fastacl252 \
+         etc/hotplug.d/iface/99-mtk-lro etc/hotplug.d/iface/99-nps-wan-mac \
+         usr/libexec/dulwifi-firstboot usr/libexec/nps-wan-mac \
+         usr/bin/juliang-traffic-daemon usr/bin/juliang-traffic-sample; do
+    [ -e "files/$f" ] && chmod 755 "files/$f"
+done
 
 mkdir -p files/root/live-wifi-files files/etc/init.d files/etc/rc.d
 cp custom/device/setup_live_wifi.sh files/root/setup_live_wifi.sh

@@ -50,7 +50,7 @@ jobs:
           MANIFEST=$(find bin/targets/mediatek/filogic -name '*cmcc_rax3000m-nand*.manifest' | head -n1)
           test -n "$IMAGE"
           test -n "$MANIFEST"
-          for p in kmod-mt7915e luci-app-passwall2 luci-app-homeproxy luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc sqm-scripts luci-app-sqm; do
+          for p in kmod-mt7915e luci-app-passwall2 luci-app-homeproxy luci-app-filetransfer luci-app-package-manager luci-theme-argon luci-app-ttyd luci-app-nps npc sqm-scripts luci-app-sqm; do
             grep -q "^$p " "$MANIFEST"
           done
           mkdir -p release
