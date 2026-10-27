@@ -3,20 +3,16 @@ set -euo pipefail
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 # Force only the requested versions over the ordinary LuCI feed copies.
-./scripts/feeds install -f -p passwall luci-app-passwall
 ./scripts/feeds install -f -p passwall2 luci-app-passwall2
 ./scripts/feeds install -f -p istore luci-app-store
 ./scripts/feeds install -f -p nas_packages quickstart
 ./scripts/feeds install -f -p nas_luci luci-app-quickstart
-./scripts/feeds install -f -p openclash luci-app-openclash
-grep -q 'PKG_VERSION:=26.3.6' feeds/passwall/luci-app-passwall/Makefile
 grep -q 'PKG_VERSION:=26.3.5' feeds/passwall2/luci-app-passwall2/Makefile
-grep -q 'PKG_RELEASE:=1' feeds/passwall/luci-app-passwall/Makefile
 grep -q 'PKG_RELEASE:=1' feeds/passwall2/luci-app-passwall2/Makefile
 cp custom/rax3000m-nand/config.seed .config
 make defconfig
 grep -q '^CONFIG_TARGET_mediatek_filogic_DEVICE_cmcc_rax3000m-nand=y$' .config
-for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall luci-app-passwall2 luci-app-homeproxy luci-app-openclash luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
+for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall2 luci-app-homeproxy luci-app-store quickstart luci-app-quickstart luci-theme-argon luci-app-ttyd luci-app-nps npc; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }
 done
 # Streaming QoS: fail the build instead of silently producing an image without cake.
