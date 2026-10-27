@@ -164,12 +164,6 @@ uci commit firewall
 uci commit system
 uci commit luci
 
-# --- optional proxy configuration carried in the image --------------------
-if [ -f /root/live-wifi-files/passwall2 ]; then
-    cp -a /etc/config/passwall2 /etc/config/passwall2.bak-first 2>/dev/null || true
-    cp /root/live-wifi-files/passwall2 /etc/config/passwall2
-fi
-
 # --- root password --------------------------------------------------------
 HASH="$(cat /etc/dulwifi-root.hash 2>/dev/null || true)"
 if [ -n "$HASH" ]; then

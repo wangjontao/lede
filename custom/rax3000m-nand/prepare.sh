@@ -35,8 +35,8 @@ for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/wa
     [ -e "files/$f" ] && chmod 755 "files/$f"
 done
 
-mkdir -p files/root/live-wifi-files
-cp custom/device/passwall2 files/root/live-wifi-files/passwall2
-chmod 600 files/root/live-wifi-files/passwall2
+# Proxy node configuration is NOT baked in: custom/device/passwall2 carried real
+# node addresses and UUIDs and this repository is public. Restore it from the
+# device backup (/root/config-backups) or re-enter the nodes in LuCI.
 ./scripts/diffconfig.sh > build.config
 for feed in feeds/*/.git; do [ -d "$feed" ] && printf '%s %s\n' "$feed" "$(git -C "${feed%/.git}" rev-parse HEAD)"; done > feeds.lock.actual
