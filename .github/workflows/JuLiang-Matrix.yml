@@ -35,8 +35,8 @@ jobs:
           set -eu
           group="$(tr -d '[:space:]' < custom/matrix/group.txt 2>/dev/null || echo all)"
           case "$group" in
-            all) list='["g1","g2","g3","g4"]' ;;
-            g1|g2|g3|g4) list="[\"$group\"]" ;;
+            all) list='["g1","g2","g3","g4","g5"]' ;;
+            g1|g2|g3|g4|g5) list="[\"$group\"]" ;;
             *) echo "Unknown group '$group' in custom/matrix/group.txt" >&2; exit 1 ;;
           esac
           echo "matrix=$list" >> "$GITHUB_OUTPUT"

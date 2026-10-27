@@ -31,3 +31,11 @@ g4  cudy_tr3000-v1          TR3000
 g4  glinet_gl-mt3000        MT3000
 g4  glinet_gl-mt6000        MT6000
 g4  h3c_magic-nx30-pro      NX30-PRO
+
+# Ported from the per-device branches (DTS + image definitions merged into this branch).
+g5  philips_hy3000         HY3000
+g5  aigo_ags21             AGS21
+g5  newland_nl-wr8103      NL-WR8103
+g5  newland_nl-wr9103      NL-WR9103
+g5  gielink_g33pro-v1      G33PRO
+g5  honor_fur-602          FUR-602
