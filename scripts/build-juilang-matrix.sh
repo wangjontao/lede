@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # Build every device of one group in a single multi-profile run.
 #
 #   scripts/build-juilang-matrix.sh <group> [devices.txt]
@@ -57,7 +57,7 @@ for row in "${ROWS[@]}"; do
     }
 done
 for p in luci-app-passwall2 luci-app-homeproxy luci-app-nps npc luci-app-sqm sqm-scripts \
-         kmod-sched-cake kmod-ifb tc luci-theme-argon luci-app-ttyd; do
+         kmod-sched-cake kmod-ifb tc-tiny luci-theme-argon luci-app-ttyd; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || {
         echo "Required package missing: $p" >&2
         exit 1

@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -euo pipefail
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -13,7 +13,7 @@ for p in kmod-mt7915e kmod-mt7981-firmware luci-app-passwall2 luci-app-homeproxy
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "Required package missing: $p"; exit 1; }
 done
 # Streaming QoS: fail the build instead of silently producing an image without cake.
-for p in tc kmod-sched-core kmod-sched-cake kmod-ifb sqm-scripts luci-app-sqm; do
+for p in tc-tiny kmod-sched-core kmod-sched-cake kmod-ifb sqm-scripts luci-app-sqm; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "SQM package missing: $p"; exit 1; }
 done
 # Shared overlay assembly (root password, dashboard, NPS hooks, hotplug, QoS guard).
