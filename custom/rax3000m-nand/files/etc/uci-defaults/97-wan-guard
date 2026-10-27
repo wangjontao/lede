@@ -22,6 +22,10 @@ uci commit network
 uci commit dhcp
 uci commit firewall
 
+# IPv6 is not used on this router; odhcpd only serves RA/DHCPv6.
+/etc/init.d/odhcpd disable 2>/dev/null || true
+/etc/init.d/odhcpd stop 2>/dev/null || true
+
 # Supervise the lease guard so an expired lease cannot leave the WAN addressless.
 /etc/init.d/wan-lease-guard enable
 

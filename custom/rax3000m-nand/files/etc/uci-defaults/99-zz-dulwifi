@@ -15,7 +15,29 @@ LIVE_IP='172.16.1.1'
 uci set system.@system[0].hostname="$HOSTNAME"
 uci -q delete system.@system[0].description
 uci set system.@system[0].description='JuLiang OS'
+uci set system.@system[0].timezone='CST-8'
+uci set system.@system[0].zonename='Asia/Shanghai'
+uci set system.@system[0].ttylogin='0'
+uci set system.@system[0].log_size='128'
+uci -q delete system.ntp.server
+uci add_list system.ntp.server='ntp1.aliyun.com'
+uci add_list system.ntp.server='ntp.tencent.com'
+uci add_list system.ntp.server='ntp.ntsc.ac.cn'
+uci set system.ntp.enabled='1'
+uci set system.ntp.enable_server='1'
 uci set luci.main.mediaurlbase='/luci-static/argon'
+
+# --- radios: same bands, channels and widths as the running system --------
+uci set wireless.radio0.band='2g'
+uci set wireless.radio0.channel='1'
+uci set wireless.radio0.htmode='HE20'
+uci set wireless.radio0.country='US'
+uci set wireless.radio0.disabled='0'
+uci set wireless.radio1.band='5g'
+uci set wireless.radio1.channel='36'
+uci set wireless.radio1.htmode='HE80'
+uci set wireless.radio1.country='US'
+uci set wireless.radio1.disabled='0'
 
 # --- LAN ------------------------------------------------------------------
 uci set network.lan.ipaddr="$LAN_IP"
