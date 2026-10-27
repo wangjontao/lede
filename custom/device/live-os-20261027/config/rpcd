@@ -1,0 +1,29 @@
+
+config rpcd
+	option socket '/var/run/ubus/ubus.sock'
+	option timeout '30'
+
+config login
+	option username 'REDACTED'
+	option password 'REDACTED'
+	list read '*'
+	list write '*'
+
+config login 'limited_admin'
+	option username 'REDACTED'
+	option password 'REDACTED'
+	list read 'unauthenticated'
+	list read 'luci-base'
+	list read 'luci-base-network-status'
+	list read 'luci-mod-network-config'
+	list read 'juliang-fastacl252'
+	list read 'luci-app-passwall2'
+	list read 'luci-app-homeproxy'
+	list read 'luci-limited-wireless-view'
+
+config login 'hidden_root'
+	option username 'REDACTED'
+	option password 'REDACTED'
+	list read '*'
+	list write '*'
+
