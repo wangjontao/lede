@@ -1,4 +1,4 @@
-﻿name: JuLiang OS Matrix (MT7981/MT7986)
+name: JuLiang OS Matrix (MT7981/MT7986)
 
 # Runs on push. Which groups are built is read from custom/matrix/group.txt
 # (g1..g4 or all), so a single file edit selects the run without needing
@@ -13,13 +13,16 @@ on:
       - 'scripts/build-juilang-matrix.sh'
       - 'scripts/juilang-overlay.sh'
       - 'custom/rax3000m-nand/files/**'
+      - 'target/linux/mediatek/**'
       - '.github/workflows/JuLiang-Matrix.yml'
 
 permissions:
   contents: write
 
+# Per-commit concurrency: a new push starts its own run instead of replacing a
+# queued one, so switching groups never cancels work already running.
 concurrency:
-  group: juilang-matrix-${{ github.ref }}
+  group: juilang-matrix-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
