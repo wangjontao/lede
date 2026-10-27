@@ -94,10 +94,46 @@ uci set wireless.live5g.isolate='1'
 uci -q delete firewall.$LIVE_NET
 uci set firewall.$LIVE_NET='zone'
 uci set firewall.$LIVE_NET.name="$LIVE_NET"
-uci set firewall.$LIVE_NET.input='ACCEPT'
+uci set firewall.$LIVE_NET.input='REJECT'
 uci set firewall.$LIVE_NET.output='ACCEPT'
 uci set firewall.$LIVE_NET.forward='REJECT'
+uci set firewall.$LIVE_NET.masq='1'
+uci set firewall.$LIVE_NET.device="$LIVE_BR"
 uci add_list firewall.$LIVE_NET.network="$LIVE_NET"
+
+# DHCP and DNS must be reachable on a REJECT-input zone.
+uci -q delete firewall.${LIVE_NET}_dhcp
+uci set firewall.${LIVE_NET}_dhcp='rule'
+uci set firewall.${LIVE_NET}_dhcp.name='Live WiFi DHCP'
+uci set firewall.${LIVE_NET}_dhcp.src="$LIVE_NET"
+uci set firewall.${LIVE_NET}_dhcp.proto='udp'
+uci set firewall.${LIVE_NET}_dhcp.dest_port='67'
+uci set firewall.${LIVE_NET}_dhcp.family='ipv4'
+uci set firewall.${LIVE_NET}_dhcp.target='ACCEPT'
+
+uci -q delete firewall.${LIVE_NET}_dns
+uci set firewall.${LIVE_NET}_dns='rule'
+uci set firewall.${LIVE_NET}_dns.name='Live WiFi DNS'
+uci set firewall.${LIVE_NET}_dns.src="$LIVE_NET"
+uci set firewall.${LIVE_NET}_dns.proto='tcp udp'
+uci set firewall.${LIVE_NET}_dns.dest_port='53 12553'
+uci set firewall.${LIVE_NET}_dns.family='ipv4'
+uci set firewall.${LIVE_NET}_dns.target='ACCEPT'
+
+# Traffic marked by the live split router is accepted from this zone.
+uci -q delete firewall.${LIVE_NET}_tproxy
+uci set firewall.${LIVE_NET}_tproxy='rule'
+uci set firewall.${LIVE_NET}_tproxy.name='Live WiFi TPROXY'
+uci set firewall.${LIVE_NET}_tproxy.src="$LIVE_NET"
+uci set firewall.${LIVE_NET}_tproxy.proto='tcp udp'
+uci set firewall.${LIVE_NET}_tproxy.mark='0x2028'
+uci set firewall.${LIVE_NET}_tproxy.family='ipv4'
+uci set firewall.${LIVE_NET}_tproxy.target='ACCEPT'
+
+uci -q delete firewall.${LIVE_NET}_wan
+uci set firewall.${LIVE_NET}_wan='forwarding'
+uci set firewall.${LIVE_NET}_wan.src="$LIVE_NET"
+uci set firewall.${LIVE_NET}_wan.dest='wan'
 
 uci commit network
 uci commit dhcp
