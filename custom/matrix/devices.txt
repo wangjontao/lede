@@ -44,3 +44,4 @@ g5  zbtlink_zbt-z8103ax-c   Z8103AX-C
 # CLX S20 series (MT7986A), DTS ported from immortalwrt 2.8.1.
 g6  clx_s20l               S20L
 g6  clx_s20p               S20P
+g4  xiaomi_redmi-router-ax6000-stock  REDMI-AX6000-STOCK
