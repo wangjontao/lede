@@ -39,3 +39,4 @@ g5  newland_nl-wr8103      NL-WR8103
 g5  newland_nl-wr9103      NL-WR9103
 g5  gielink_g33pro-v1      G33PRO
 g5  honor_fur-602          FUR-602
+g5  zbtlink_zbt-z8103ax-c   Z8103AX-C

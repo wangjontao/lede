@@ -16,6 +16,7 @@ mediatek_setup_interfaces()
 		;;
 	newland,nl-wr9103|\
 	newland,nl-wr8103|\
+	zbtlink,zbt-z8103ax-c|\
 	abt,asr3000|\
 	cmcc,rax3000m*|\
 	cmcc,xr30-nand|\
