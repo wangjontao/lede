@@ -1,0 +1,55 @@
+﻿# Base configuration for the JuLiang multi-device matrix.
+# Device lines are appended by scripts/build-juilang-matrix.sh from
+# custom/matrix/devices.txt; do not add a DEVICE_ line here.
+CONFIG_TARGET_mediatek=y
+CONFIG_TARGET_mediatek_filogic=y
+CONFIG_CCACHE=y
+CONFIG_PACKAGE_luci=y
+CONFIG_LUCI_LANG_zh_Hans=y
+CONFIG_PACKAGE_dnsmasq-full=y
+# CONFIG_PACKAGE_dnsmasq is not set
+CONFIG_PACKAGE_firewall4=y
+# CONFIG_PACKAGE_firewall is not set
+
+# Themes and LuCI applications present on the running device.
+CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-app-argon-config=y
+CONFIG_PACKAGE_luci-app-arpbind=y
+CONFIG_PACKAGE_luci-app-autoreboot=y
+CONFIG_PACKAGE_luci-app-filetransfer=y
+CONFIG_PACKAGE_luci-app-firewall=y
+CONFIG_PACKAGE_luci-app-package-manager=y
+CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-lib-xterm=y
+
+# Proxying: the device runs PassWall2 and HomeProxy only.
+# PassWall 1, OpenClash, iStore and QuickStart are deliberately absent.
+CONFIG_PACKAGE_luci-app-passwall2=y
+CONFIG_PACKAGE_luci-i18n-passwall2-zh-cn=y
+CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y
+
+# NPS intranet tunnel client.
+CONFIG_PACKAGE_luci-app-nps=y
+CONFIG_PACKAGE_luci-i18n-nps-zh-cn=y
+CONFIG_PACKAGE_npc=y
+
+# Operator tools.
+CONFIG_PACKAGE_curl=y
+CONFIG_PACKAGE_htop=y
+CONFIG_PACKAGE_tcpdump=y
+CONFIG_PACKAGE_ttyd=y
+
+# BBR congestion control (also set in files/etc/sysctl.d/10-bbr.conf).
+CONFIG_PACKAGE_kmod-tcp-bbr=y
+
+# Streaming QoS: WAN shaping with cake (SQM). tc is a subpackage of iproute2;
+# the scheduler modules are defined in package/kernel/linux/modules/netsupport.mk.
+CONFIG_PACKAGE_tc=y
+CONFIG_PACKAGE_kmod-sched-core=y
+CONFIG_PACKAGE_kmod-sched-cake=y
+CONFIG_PACKAGE_kmod-ifb=y
+CONFIG_PACKAGE_sqm-scripts=y
+CONFIG_PACKAGE_luci-app-sqm=y
+CONFIG_PACKAGE_luci-i18n-sqm-zh-cn=y

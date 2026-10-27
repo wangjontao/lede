@@ -1,0 +1,95 @@
+name: JuLiang OS Matrix (MT7981/MT7986)
+
+on:
+  workflow_dispatch:
+    inputs:
+      group:
+        description: 'Group to build (g1..g4, or all)'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: juilang-matrix-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Matrix ${{ matrix.group }}
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [g1, g2, g3, g4]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare build host
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache clang flex bison g++ gawk gcc-multilib \
+            gettext git libncurses-dev libssl-dev python3-setuptools rsync swig unzip \
+            zlib1g-dev file wget curl jq openssl zstd libelf-dev
+
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: |
+            dl
+            .ccache
+          key: juilang-matrix-${{ runner.os }}-${{ matrix.group }}-${{ github.run_id }}
+          restore-keys: |
+            juilang-matrix-${{ runner.os }}-${{ matrix.group }}-
+
+      - name: Build group ${{ matrix.group }}
+        run: bash scripts/build-juilang-matrix.sh ${{ matrix.group }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: JuLiangOS-${{ matrix.group }}-${{ github.run_number }}
+          path: |
+            release/
+            build.log
+          if-no-files-found: warn
+          retention-days: 30
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            dl
+            .ccache
+          key: juilang-matrix-${{ runner.os }}-${{ matrix.group }}-${{ github.run_id }}
+
+  publish:
+    name: Publish matrix release
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Assemble release
+        run: |
+          set -eu
+          mkdir -p release
+          find artifacts -type f \( -name '*.bin' -o -name '*.manifest' -o -name 'SHA256SUMS*' -o -name 'build.config' \) -exec cp -a {} release/ \;
+          ls -lh release
+          cd release && sha256sum * > SHA256SUMS
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "JuLiangOS-Matrix-${GITHUB_RUN_NUMBER}" release/* \
+            --target "$GITHUB_SHA" \
+            --title "JuLiang OS Matrix ${GITHUB_RUN_NUMBER}" \
+            --notes 'Multi-device JuLiang OS build. Each image carries: management 192.168.7.1, root password @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, br-live 172.16.1.1/24, PassWall2 + HomeProxy, SQM (cake), WAN DHCP lease guard, no IPv6. Flash only onto a matching model and partition layout.'

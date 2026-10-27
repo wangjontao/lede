@@ -1,0 +1,33 @@
+# JuLiang matrix device list.
+#
+# Format:  <group>  <openwrt device id>  <artifact tag>
+# Groups are built in parallel jobs; devices inside a group are built in one
+# multi-profile run, so keep each group at five devices or fewer.
+#
+# Only devices present in this tree's target/linux/mediatek/image/filogic.mk can
+# be built here. Models that live on other branches (hy3000, ags21, newland,
+# etr631, gielink, honor) need their DTS patches merged into this branch first.
+
+g1  cmcc_rax3000m-nand      RAX3000M-NAND
+g1  cmcc_rax3000m-emmc      RAX3000M-EMMC
+g1  cmcc_rax3000me-nand     RAX3000Me-NAND
+g1  cmcc_a10                CMCC-A10
+g1  cmcc_xr30-nand          CMCC-XR30
+
+g2  qihoo_360t7             360T7
+g2  cetron_ct3003           CT3003
+g2  jcg_q30-pro             Q30-PRO
+g2  jdcloud_re-cs-05        JDCloud-RE-CS-05
+g2  konka_komi-a31          KOMI-A31
+
+g3  netcore_n60             N60
+g3  nokia_ea0326gmp         EA0326GMP
+g3  abt_asr3000             ASR3000
+g3  xiaomi_mi-router-ax3000t  AX3000T
+g3  xiaomi_mi-router-wr30u    WR30U
+
+g4  xiaomi_redmi-router-ax6000  REDMI-AX6000
+g4  cudy_tr3000-v1          TR3000
+g4  glinet_gl-mt3000        MT3000
+g4  glinet_gl-mt6000        MT6000
+g4  h3c_magic-nx30-pro      NX30-PRO

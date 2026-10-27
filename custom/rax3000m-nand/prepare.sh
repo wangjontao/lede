@@ -16,24 +16,8 @@ done
 for p in tc kmod-sched-core kmod-sched-cake kmod-ifb sqm-scripts luci-app-sqm; do
     grep -q "^CONFIG_PACKAGE_${p}=y$" .config || { echo "SQM package missing: $p"; exit 1; }
 done
-HASH="$(openssl passwd -1 '@password@')"
-cp package/base-files/files/etc/shadow files/etc/shadow
-sed -i "s#^root:[^:]*:#root:${HASH}:#" files/etc/shadow
-printf '%s\n' "$HASH" > files/etc/dulwifi-root.hash
-chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
-chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboot files/usr/libexec/dulwifi-firstboot
-
-# Overlay captured from the running system: JuLiang dashboard, NPS hooks, hotplug.
-mkdir -p files
-cp -a custom/rax3000m-nand/files/. files/
-for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/wan-lease-guard \
-         etc/uci-defaults/96-juliang-dashboard etc/uci-defaults/97-wan-guard etc/uci-defaults/99-enable-nps-wan-mac etc/uci-defaults/99-zz-dulwifi \
-         etc/hotplug.d/iface/50-arpbind etc/hotplug.d/iface/98-passwall2 etc/hotplug.d/iface/99-fastacl252 \
-         etc/hotplug.d/iface/99-mtk-lro etc/hotplug.d/iface/99-nps-wan-mac \
-         usr/libexec/dulwifi-firstboot usr/libexec/nps-wan-mac usr/libexec/wan-lease-guard \
-         usr/bin/juliang-traffic-daemon usr/bin/juliang-traffic-sample; do
-    [ -e "files/$f" ] && chmod 755 "files/$f"
-done
+# Shared overlay assembly (root password, dashboard, NPS hooks, hotplug, QoS guard).
+bash scripts/juilang-overlay.sh
 
 # Proxy node configuration is NOT baked in: custom/device/passwall2 carried real
 # node addresses and UUIDs and this repository is public. Restore it from the

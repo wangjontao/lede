@@ -1,0 +1,14 @@
+config TARGET_MULTI_PROFILE
+	bool "Enable multi-profile image builds"
+	help
+	  Allows selecting more than one device profile in a single build.
+	  Each selected profile produces its own image, which is what the
+	  grouped JuLiang matrix workflow relies on.
+
+config TARGET_PER_DEVICE_ROOTFS
+	bool "Use a per-device root filesystem"
+	depends on TARGET_MULTI_PROFILE
+	default y
+	help
+	  Build a separate root filesystem for every selected device profile
+	  instead of sharing one between them.
