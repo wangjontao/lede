@@ -1,4 +1,4 @@
-﻿
+
 . /lib/functions.sh
 . /lib/functions/uci-defaults.sh
 . /lib/functions/system.sh

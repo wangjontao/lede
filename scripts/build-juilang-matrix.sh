@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Build every device of one group in a single multi-profile run.
 #
 #   scripts/build-juilang-matrix.sh <group> [devices.txt]

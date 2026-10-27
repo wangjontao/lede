@@ -1,4 +1,4 @@
-﻿# Base configuration for the JuLiang multi-device matrix.
+# Base configuration for the JuLiang multi-device matrix.
 # Device lines are appended by scripts/build-juilang-matrix.sh from
 # custom/matrix/devices.txt; do not add a DEVICE_ line here.
 CONFIG_TARGET_mediatek=y

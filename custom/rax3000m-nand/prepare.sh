@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 set -euo pipefail
 ./scripts/feeds update -a
 ./scripts/feeds install -a

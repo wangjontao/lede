@@ -352,5 +352,3 @@ menu "Target Images"
 		  to /tmp/run.
 
 endmenu
-
-source "config/Config-multi-profile.in"
