@@ -13,13 +13,24 @@ GROUP="${1:?usage: $0 <group> [devices.txt]}"
 DEVFILE="${2:-custom/matrix/devices.txt}"
 TARGET="mediatek_filogic"
 
-mapfile -t ROWS < <(awk -v g="$GROUP" '$1 == g && $2 !~ /^#/ { print $2 " " $3 }' "$DEVFILE")
+# Strip CR so a CRLF devices.txt cannot leak \r into tags and artifact names.
+mapfile -t ROWS < <(tr -d '\r' < "$DEVFILE" | awk -v g="$GROUP" '$1 == g && $2 !~ /^#/ { print $2 " " $3 }')
 if [ "${#ROWS[@]}" -eq 0 ]; then
     echo "No devices listed for group ${GROUP} in ${DEVFILE}" >&2
     exit 1
 fi
 echo "Group ${GROUP}: ${#ROWS[@]} device(s)"
 printf '  %s\n' "${ROWS[@]}"
+# Fail early on a malformed tag instead of producing an unuploadable filename.
+for row in "${ROWS[@]}"; do
+    set -- $row
+    case "$2" in
+        ''|*[!A-Za-z0-9._-]*)
+            echo "Invalid artifact tag for device $1: '$2'" >&2
+            exit 1
+            ;;
+    esac
+done
 
 # --- feeds and packages ---------------------------------------------------
 ./scripts/feeds update -a
