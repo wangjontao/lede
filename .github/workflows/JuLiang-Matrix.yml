@@ -1,12 +1,19 @@
 name: JuLiang OS Matrix (MT7981/MT7986)
 
+# Runs on push. Which groups are built is read from custom/matrix/group.txt
+# (g1..g4 or all), so a single file edit selects the run without needing
+# workflow_dispatch, which GitHub only exposes for workflows on the default branch.
+
 on:
   workflow_dispatch:
-    inputs:
-      group:
-        description: 'Group to build (g1..g4, or all)'
-        required: false
-        default: 'all'
+  push:
+    branches: [jontaoNpS-rax3000m-nand-live-os]
+    paths:
+      - 'custom/matrix/**'
+      - 'scripts/build-juilang-matrix.sh'
+      - 'scripts/juilang-overlay.sh'
+      - 'custom/rax3000m-nand/files/**'
+      - '.github/workflows/JuLiang-Matrix.yml'
 
 permissions:
   contents: write
@@ -16,12 +23,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  plan:
+    name: Plan groups
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          set -eu
+          group="$(tr -d '[:space:]' < custom/matrix/group.txt 2>/dev/null || echo all)"
+          case "$group" in
+            all) list='["g1","g2","g3","g4"]' ;;
+            g1|g2|g3|g4) list="[\"$group\"]" ;;
+            *) echo "Unknown group '$group' in custom/matrix/group.txt" >&2; exit 1 ;;
+          esac
+          echo "matrix=$list" >> "$GITHUB_OUTPUT"
+          echo "groups: $list"
+
   build:
     name: Matrix ${{ matrix.group }}
+    needs: plan
     strategy:
       fail-fast: false
       matrix:
-        group: [g1, g2, g3, g4]
+        group: ${{ fromJSON(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     steps:
@@ -36,7 +63,6 @@ jobs:
             zlib1g-dev file wget curl jq openssl zstd libelf-dev
 
       - uses: actions/cache/restore@v4
-        id: cache
         with:
           path: |
             dl
@@ -46,7 +72,7 @@ jobs:
             juilang-matrix-${{ runner.os }}-${{ matrix.group }}-
 
       - name: Build group ${{ matrix.group }}
-        run: bash scripts/build-juilang-matrix.sh ${{ matrix.group }}
+        run: bash scripts/build-juilang-matrix.sh ${{ matrix.group }} || { tail -n 200 build.log 2>/dev/null || true; exit 1; }
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -69,7 +95,7 @@ jobs:
   publish:
     name: Publish matrix release
     needs: build
-    if: always() && needs.build.result == 'success'
+    if: needs.build.result == 'success'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
@@ -81,7 +107,7 @@ jobs:
         run: |
           set -eu
           mkdir -p release
-          find artifacts -type f \( -name '*.bin' -o -name '*.manifest' -o -name 'SHA256SUMS*' -o -name 'build.config' \) -exec cp -a {} release/ \;
+          find artifacts -type f \( -name '*.bin' -o -name '*.manifest' -o -name 'build.config' \) -exec cp -a {} release/ \;
           ls -lh release
           cd release && sha256sum * > SHA256SUMS
 
@@ -92,4 +118,4 @@ jobs:
           gh release create "JuLiangOS-Matrix-${GITHUB_RUN_NUMBER}" release/* \
             --target "$GITHUB_SHA" \
             --title "JuLiang OS Matrix ${GITHUB_RUN_NUMBER}" \
-            --notes 'Multi-device JuLiang OS build. Each image carries: management 192.168.7.1, root password @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, br-live 172.16.1.1/24, PassWall2 + HomeProxy, SQM (cake), WAN DHCP lease guard, no IPv6. Flash only onto a matching model and partition layout.'
+            --notes 'Multi-device JuLiang OS build. Each image: management 192.168.7.1, root @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, br-live 172.16.1.1/24, PassWall2 + HomeProxy, SQM (cake), WAN DHCP lease guard, no IPv6.'
