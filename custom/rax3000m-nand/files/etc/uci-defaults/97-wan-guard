@@ -1,0 +1,28 @@
+#!/bin/sh
+# WAN resilience and IPv6 removal, applied once on first boot.
+set -e
+
+# Keep the lease on ifdown so the modem does not revoke it while we reconnect.
+uci set network.wan.norelease='1'
+
+# No IPv6 on the WAN side at all.
+uci -q delete network.wan6
+for zone in $(uci show firewall 2>/dev/null | sed -n "s/^firewall\.\(@zone\[[0-9]*\]\)\.name='wan'$/\1/p"); do
+    uci -q del_list "firewall.${zone}.network=wan6"
+done
+
+# No IPv6 on the LAN side either.
+uci -q delete network.lan.ip6assign
+uci set network.lan.delegate='0'
+uci set dhcp.lan.dhcpv6='disabled'
+uci set dhcp.lan.ra='disabled'
+uci set dhcp.lan.ndp='disabled'
+
+uci commit network
+uci commit dhcp
+uci commit firewall
+
+# Supervise the lease guard so an expired lease cannot leave the WAN addressless.
+/etc/init.d/wan-lease-guard enable
+
+exit 0

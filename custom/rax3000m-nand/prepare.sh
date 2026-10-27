@@ -26,11 +26,11 @@ chmod 755 files/etc/uci-defaults/99-zz-dulwifi files/etc/init.d/dulwifi-firstboo
 # Overlay captured from the running system: JuLiang dashboard, NPS hooks, hotplug.
 mkdir -p files
 cp -a custom/rax3000m-nand/files/. files/
-for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard \
-         etc/uci-defaults/96-juliang-dashboard etc/uci-defaults/99-enable-nps-wan-mac etc/uci-defaults/99-zz-dulwifi \
+for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/wan-lease-guard \
+         etc/uci-defaults/96-juliang-dashboard etc/uci-defaults/97-wan-guard etc/uci-defaults/99-enable-nps-wan-mac etc/uci-defaults/99-zz-dulwifi \
          etc/hotplug.d/iface/50-arpbind etc/hotplug.d/iface/98-passwall2 etc/hotplug.d/iface/99-fastacl252 \
          etc/hotplug.d/iface/99-mtk-lro etc/hotplug.d/iface/99-nps-wan-mac \
-         usr/libexec/dulwifi-firstboot usr/libexec/nps-wan-mac \
+         usr/libexec/dulwifi-firstboot usr/libexec/nps-wan-mac usr/libexec/wan-lease-guard \
          usr/bin/juliang-traffic-daemon usr/bin/juliang-traffic-sample; do
     [ -e "files/$f" ] && chmod 755 "files/$f"
 done
