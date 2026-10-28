@@ -34,8 +34,58 @@ done
 
 # Enable the wireless service in the image itself, so the SSIDs are applied on
 # the very first boot without depending on a successful uci-defaults run.
+# START=95: after network (S20) and wifi (S19) are up, otherwise "wifi reload"
+# fails and the radios keep the stock LEDE configuration.
 mkdir -p files/etc/rc.d
-ln -sf ../init.d/juliang-wifi files/etc/rc.d/S20juliang-wifi
+rm -f files/etc/rc.d/S20juliang-wifi files/etc/rc.d/K20juliang-wifi
+ln -sf ../init.d/juliang-wifi files/etc/rc.d/S95juliang-wifi
 ln -sf ../init.d/wan-lease-guard files/etc/rc.d/S95wan-lease-guard
+
+# --- regression guards ----------------------------------------------------
+# A build once shipped with no wireless and no LAN address because the
+# first-boot script used "set -e" and died before it reached the radio and LAN
+# sections. Fail the build loudly if that pattern ever comes back.
+if grep -Eq '^[[:space:]]*set -e' files/etc/uci-defaults/99-zz-dulwifi; then
+    echo "ERROR: 99-zz-dulwifi must not use 'set -e' (it will abort mid-config)" >&2
+    exit 1
+fi
+[ -f files/etc/init.d/juliang-wifi ] || {
+    echo "ERROR: files/etc/init.d/juliang-wifi is missing" >&2
+    exit 1
+}
+[ -L files/etc/rc.d/S95juliang-wifi ] || {
+    echo "ERROR: juliang-wifi is not enabled in /etc/rc.d" >&2
+    exit 1
+}
+if grep -Eq "ssid='" files/usr/libexec/dulwifi-firstboot 2>/dev/null; then
+    echo "ERROR: dulwifi-firstboot still rewrites SSIDs; JuLiang branding is applied by juliang-wifi" >&2
+    exit 1
+fi
+
+# Every shell script we ship must at least parse. A single stray CR in
+# /etc/board.d/02_network once made board_detect fail, which silently turned the
+# LAN into a single eth0 interface and left all four ports dead.
+_bad=0
+while IFS= read -r f; do
+    case "$f" in
+        *.sh|*/init.d/*|*/uci-defaults/*|*/libexec/*|*/hotplug.d/*/*|*/board.d/*|*/rc.common) ;;
+        *) continue ;;
+    esac
+    sh -n "$f" 2>/dev/null || { echo "ERROR: shell syntax error in $f" >&2; _bad=1; }
+done < <(find files -type f)
+[ "$_bad" -eq 0 ] || exit 1
+
+# board.d/02_network must not contain CR characters; OpenWrt parses it with sh.
+# It lives in the target tree, not in the overlay, so check the source path too.
+for net in files/etc/board.d/02_network \
+           target/linux/mediatek/filogic/base-files/etc/board.d/02_network; do
+    [ -f "$net" ] || continue
+    if grep -q $'\r' "$net"; then
+        echo "ERROR: $net contains CR characters" >&2
+        exit 1
+    fi
+    sh -n "$net" 2>/dev/null || { echo "ERROR: $net has a shell syntax error" >&2; exit 1; }
+done
+
 
 echo "overlay assembled: $(find files -type f | wc -l) files"

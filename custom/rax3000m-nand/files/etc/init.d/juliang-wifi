@@ -7,8 +7,8 @@
 # Running at boot, after wifi (START=19), means the sections are always present,
 # and a firmware upgrade that regenerates /etc/config/wireless is re-applied too.
 
-START=20
-STOP=20
+START=95
+STOP=95
 USE_PROCD=0
 
 LOG='/etc/juliang-wifi.log'
