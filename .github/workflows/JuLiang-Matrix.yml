@@ -1,4 +1,4 @@
-﻿name: JuLiang OS Matrix (MT7981/MT7986)
+name: JuLiang OS Matrix (MT7981/MT7986)
 
 # Runs on push. Which groups are built is read from custom/matrix/group.txt
 # (g1..g4 or all), so a single file edit selects the run without needing
@@ -102,6 +102,10 @@ jobs:
     if: needs.build.result == 'success'
     runs-on: ubuntu-24.04
     steps:
+      # gh release create --target <sha> needs a git repository to resolve the
+      # commit, otherwise it fails with "fatal: not a git repository".
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
