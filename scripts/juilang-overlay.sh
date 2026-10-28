@@ -87,5 +87,19 @@ for net in files/etc/board.d/02_network \
     sh -n "$net" 2>/dev/null || { echo "ERROR: $net has a shell syntax error" >&2; exit 1; }
 done
 
+# CR characters anywhere in the image definition or the device trees break the
+# build in confusing ways: DEVICE_DTS becomes "foo\r", the DTB lookup fails and
+# TARGET_DEVICES gets a name the profile system cannot resolve. A whole batch of
+# ported devices once carried them after being appended with Windows tooling.
+for d in target/linux/mediatek/image target/linux/mediatek/dts \
+         target/linux/mediatek/filogic/base-files; do
+    [ -d "$d" ] || continue
+    if grep -rlq $'\r' "$d" 2>/dev/null; then
+        echo "ERROR: CR characters found under $d:" >&2
+        grep -rl $'\r' "$d" 2>/dev/null | while read -r bad; do echo "  $bad" >&2; done
+        exit 1
+    fi
+done
+
 
 echo "overlay assembled: $(find files -type f | wc -l) files"
