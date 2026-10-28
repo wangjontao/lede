@@ -101,5 +101,20 @@ for d in target/linux/mediatek/image target/linux/mediatek/dts \
     fi
 done
 
+# A UTF-8 BOM in front of a device tree makes dtc fail on the first character,
+# so the device never gets a DTB. Nine ported DTS files once carried one after
+# being written with Windows tooling; strip-BOM regressions must fail here.
+for d in target/linux/mediatek/dts target/linux/mediatek/image \
+         target/linux/mediatek/filogic/base-files scripts custom; do
+    [ -d "$d" ] || continue
+    find "$d" -type f 2>/dev/null | while read -r f; do
+        if [ "$(head -c3 "$f" | od -An -tx1 | tr -d ' \n')" = "efbbbf" ]; then
+            echo "ERROR: UTF-8 BOM in $f" >&2
+            echo "FAILED" >> /tmp/.juliang-bom
+        fi
+    done
+    if [ -f /tmp/.juliang-bom ]; then rm -f /tmp/.juliang-bom; exit 1; fi
+done
+
 
 echo "overlay assembled: $(find files -type f | wc -l) files"
