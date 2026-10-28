@@ -1,176 +1,164 @@
 #!/bin/sh
-# JuLiang OS first-boot defaults: identity, LAN, main WiFi and live WiFi.
-# Everything here is baked into the image; a fresh flash comes up configured.
-set -e
+# JuLiang OS first-boot defaults.
+#
+# This script runs once from /etc/uci-defaults. It must never abort halfway:
+# a single failing uci call used to kill everything after it, which left the
+# radios disabled and the LAN on the default 192.168.1.1. Every step is now
+# independent, failures are logged, and wireless is applied by
+# /etc/init.d/juliang-wifi at boot time instead of here.
+
+LOG='/etc/juliang-firstboot.log'
+: > "$LOG" 2>/dev/null || true
+
+log() { echo "[$(date +%H:%M:%S)] $*" >> "$LOG" 2>/dev/null; }
+# Run a command, log and continue on failure.
+try() { "$@" >> "$LOG" 2>&1 || log "FAILED: $*"; }
+u()   { uci "$@" >> "$LOG" 2>&1 || log "FAILED: uci $*"; }
 
 LAN_IP='192.168.7.1'
 HOSTNAME='JuLiang-OS'
-WIFI_KEY='66668888'
 LIVE_NET='jfa25w1'
 LIVE_DEV='live_dev'
 LIVE_BR='br-live'
 LIVE_IP='172.16.1.1'
 
-# --- identity -------------------------------------------------------------
-uci set system.@system[0].hostname="$HOSTNAME"
-uci -q delete system.@system[0].description
-uci set system.@system[0].description='JuLiang OS'
-uci set system.@system[0].timezone='CST-8'
-uci set system.@system[0].zonename='Asia/Shanghai'
-uci set system.@system[0].ttylogin='0'
-uci set system.@system[0].log_size='128'
-uci -q delete system.ntp.server
-uci add_list system.ntp.server='ntp1.aliyun.com'
-uci add_list system.ntp.server='ntp.tencent.com'
-uci add_list system.ntp.server='ntp.ntsc.ac.cn'
-uci set system.ntp.enabled='1'
-uci set system.ntp.enable_server='1'
-uci set luci.main.mediaurlbase='/luci-static/argon'
+log "first boot defaults starting"
 
-# --- radios: same bands, channels and widths as the running system --------
-uci set wireless.radio0.band='2g'
-uci set wireless.radio0.channel='1'
-uci set wireless.radio0.htmode='HE20'
-uci set wireless.radio0.country='US'
-uci set wireless.radio0.disabled='0'
-uci set wireless.radio1.band='5g'
-uci set wireless.radio1.channel='36'
-uci set wireless.radio1.htmode='HE80'
-uci set wireless.radio1.country='US'
-uci set wireless.radio1.disabled='0'
+# --- identity -------------------------------------------------------------
+u set system.@system[0].hostname="$HOSTNAME"
+u -q delete system.@system[0].description
+u set system.@system[0].description='JuLiang OS'
+u set system.@system[0].timezone='CST-8'
+u set system.@system[0].zonename='Asia/Shanghai'
+u set system.@system[0].ttylogin='0'
+u set system.@system[0].log_size='128'
+
+# NTP: only when the section is present.
+if [ -n "$(uci -q get system.ntp)" ]; then
+    u -q delete system.ntp.server
+    u add_list system.ntp.server='ntp1.aliyun.com'
+    u add_list system.ntp.server='ntp.tencent.com'
+    u add_list system.ntp.server='ntp.ntsc.ac.cn'
+    u set system.ntp.enabled='1'
+    u set system.ntp.enable_server='1'
+fi
+
+# LuCI theme: luci.main does not exist on a fresh image, so create it first.
+if [ -z "$(uci -q get luci.main)" ]; then
+    u set luci.main='core'
+fi
+u set luci.main.mediaurlbase='/luci-static/argon'
 
 # --- LAN ------------------------------------------------------------------
-uci set network.lan.ipaddr="$LAN_IP"
-uci set network.lan.netmask='255.255.255.0'
+if [ -z "$(uci -q get network.lan)" ]; then
+    u set network.lan='interface'
+fi
+u set network.lan.ipaddr="$LAN_IP"
+u set network.lan.netmask='255.255.255.0'
 
-# --- main WiFi: one SSID per band, same passphrase ------------------------
-uci -q delete wireless.main24
-uci set wireless.main24='wifi-iface'
-uci set wireless.main24.device='radio0'
-uci set wireless.main24.network='lan'
-uci set wireless.main24.mode='ap'
-uci set wireless.main24.ssid='JuLiang OS-2.4G'
-uci set wireless.main24.encryption='psk2+ccmp'
-uci set wireless.main24.key="$WIFI_KEY"
-uci set wireless.main24.disabled='0'
+# --- live WiFi network ----------------------------------------------------
+u -q delete network.$LIVE_DEV
+u set network.$LIVE_DEV='device'
+u set network.$LIVE_DEV.name="$LIVE_BR"
+u set network.$LIVE_DEV.type='bridge'
+u set network.$LIVE_DEV.bridge_empty='1'
 
-uci -q delete wireless.main5
-uci set wireless.main5='wifi-iface'
-uci set wireless.main5.device='radio1'
-uci set wireless.main5.network='lan'
-uci set wireless.main5.mode='ap'
-uci set wireless.main5.ssid='JuLiang OS-5G'
-uci set wireless.main5.encryption='psk2+ccmp'
-uci set wireless.main5.key="$WIFI_KEY"
-uci set wireless.main5.disabled='0'
+u -q delete network.$LIVE_NET
+u set network.$LIVE_NET='interface'
+u set network.$LIVE_NET.device="$LIVE_BR"
+u set network.$LIVE_NET.proto='static'
+u set network.$LIVE_NET.ipaddr="$LIVE_IP"
+u set network.$LIVE_NET.netmask='255.255.255.0'
+u set network.$LIVE_NET.delegate='0'
 
-# --- live WiFi: dedicated bridge, same passphrase -------------------------
-uci -q delete network.$LIVE_DEV
-uci set network.$LIVE_DEV='device'
-uci set network.$LIVE_DEV.name="$LIVE_BR"
-uci set network.$LIVE_DEV.type='bridge'
-uci set network.$LIVE_DEV.bridge_empty='1'
+u -q delete dhcp.$LIVE_NET
+u set dhcp.$LIVE_NET='dhcp'
+u set dhcp.$LIVE_NET.interface="$LIVE_NET"
+u set dhcp.$LIVE_NET.start='100'
+u set dhcp.$LIVE_NET.limit='150'
+u set dhcp.$LIVE_NET.leasetime='12h'
+u set dhcp.$LIVE_NET.ra='disabled'
+u set dhcp.$LIVE_NET.dhcpv6='disabled'
+u set dhcp.$LIVE_NET.ndp='disabled'
+u add_list dhcp.$LIVE_NET.dhcp_option="3,$LIVE_IP"
+u add_list dhcp.$LIVE_NET.dhcp_option="6,$LIVE_IP"
 
-uci -q delete network.$LIVE_NET
-uci set network.$LIVE_NET='interface'
-uci set network.$LIVE_NET.device="$LIVE_BR"
-uci set network.$LIVE_NET.proto='static'
-uci set network.$LIVE_NET.ipaddr="$LIVE_IP"
-uci set network.$LIVE_NET.netmask='255.255.255.0'
-uci set network.$LIVE_NET.delegate='0'
+# --- LAN IPv6 off ---------------------------------------------------------
+u -q delete network.lan.ip6assign
+u set network.lan.delegate='0'
+u set dhcp.lan.dhcpv6='disabled'
+u set dhcp.lan.ra='disabled'
+u set dhcp.lan.ndp='disabled'
 
-uci -q delete dhcp.$LIVE_NET
-uci set dhcp.$LIVE_NET='dhcp'
-uci set dhcp.$LIVE_NET.interface="$LIVE_NET"
-uci set dhcp.$LIVE_NET.start='100'
-uci set dhcp.$LIVE_NET.limit='150'
-uci set dhcp.$LIVE_NET.leasetime='12h'
-uci set dhcp.$LIVE_NET.ra='disabled'
-uci set dhcp.$LIVE_NET.dhcpv6='disabled'
-uci set dhcp.$LIVE_NET.ndp='disabled'
-uci add_list dhcp.$LIVE_NET.dhcp_option="3,$LIVE_IP"
-uci add_list dhcp.$LIVE_NET.dhcp_option="6,$LIVE_IP"
+# --- WAN: no IPv6, keep the lease on ifdown -------------------------------
+if [ -n "$(uci -q get network.wan)" ]; then
+    u set network.wan.norelease='1'
+fi
+u -q delete network.wan6
+for zone in $(uci show firewall 2>/dev/null | sed -n "s/^firewall\.\(@zone\[[0-9]*\]\)\.name='wan'$/\1/p"); do
+    u -q del_list "firewall.${zone}.network=wan6"
+done
 
-uci -q delete wireless.live24
-uci set wireless.live24='wifi-iface'
-uci set wireless.live24.device='radio0'
-uci set wireless.live24.network="$LIVE_NET"
-uci set wireless.live24.mode='ap'
-uci set wireless.live24.ssid='Live-2.4G'
-uci set wireless.live24.encryption='psk2+ccmp'
-uci set wireless.live24.key="$WIFI_KEY"
-uci set wireless.live24.disabled='0'
-uci set wireless.live24.isolate='1'
+# --- firewall zone for the live network -----------------------------------
+u -q delete firewall.$LIVE_NET
+u set firewall.$LIVE_NET='zone'
+u set firewall.$LIVE_NET.name="$LIVE_NET"
+u set firewall.$LIVE_NET.input='REJECT'
+u set firewall.$LIVE_NET.output='ACCEPT'
+u set firewall.$LIVE_NET.forward='REJECT'
+u set firewall.$LIVE_NET.masq='1'
+u set firewall.$LIVE_NET.device="$LIVE_BR"
+u add_list firewall.$LIVE_NET.network="$LIVE_NET"
 
-uci -q delete wireless.live5g
-uci set wireless.live5g='wifi-iface'
-uci set wireless.live5g.device='radio1'
-uci set wireless.live5g.network="$LIVE_NET"
-uci set wireless.live5g.mode='ap'
-uci set wireless.live5g.ssid='Live-5G'
-uci set wireless.live5g.encryption='psk2+ccmp'
-uci set wireless.live5g.key="$WIFI_KEY"
-uci set wireless.live5g.disabled='0'
-uci set wireless.live5g.isolate='1'
+u -q delete firewall.${LIVE_NET}_dhcp
+u set firewall.${LIVE_NET}_dhcp='rule'
+u set firewall.${LIVE_NET}_dhcp.name='Live WiFi DHCP'
+u set firewall.${LIVE_NET}_dhcp.src="$LIVE_NET"
+u set firewall.${LIVE_NET}_dhcp.proto='udp'
+u set firewall.${LIVE_NET}_dhcp.dest_port='67'
+u set firewall.${LIVE_NET}_dhcp.family='ipv4'
+u set firewall.${LIVE_NET}_dhcp.target='ACCEPT'
 
-uci -q delete firewall.$LIVE_NET
-uci set firewall.$LIVE_NET='zone'
-uci set firewall.$LIVE_NET.name="$LIVE_NET"
-uci set firewall.$LIVE_NET.input='REJECT'
-uci set firewall.$LIVE_NET.output='ACCEPT'
-uci set firewall.$LIVE_NET.forward='REJECT'
-uci set firewall.$LIVE_NET.masq='1'
-uci set firewall.$LIVE_NET.device="$LIVE_BR"
-uci add_list firewall.$LIVE_NET.network="$LIVE_NET"
+u -q delete firewall.${LIVE_NET}_dns
+u set firewall.${LIVE_NET}_dns='rule'
+u set firewall.${LIVE_NET}_dns.name='Live WiFi DNS'
+u set firewall.${LIVE_NET}_dns.src="$LIVE_NET"
+u set firewall.${LIVE_NET}_dns.proto='tcp udp'
+u set firewall.${LIVE_NET}_dns.dest_port='53 12553'
+u set firewall.${LIVE_NET}_dns.family='ipv4'
+u set firewall.${LIVE_NET}_dns.target='ACCEPT'
 
-# DHCP and DNS must be reachable on a REJECT-input zone.
-uci -q delete firewall.${LIVE_NET}_dhcp
-uci set firewall.${LIVE_NET}_dhcp='rule'
-uci set firewall.${LIVE_NET}_dhcp.name='Live WiFi DHCP'
-uci set firewall.${LIVE_NET}_dhcp.src="$LIVE_NET"
-uci set firewall.${LIVE_NET}_dhcp.proto='udp'
-uci set firewall.${LIVE_NET}_dhcp.dest_port='67'
-uci set firewall.${LIVE_NET}_dhcp.family='ipv4'
-uci set firewall.${LIVE_NET}_dhcp.target='ACCEPT'
+u -q delete firewall.${LIVE_NET}_tproxy
+u set firewall.${LIVE_NET}_tproxy='rule'
+u set firewall.${LIVE_NET}_tproxy.name='Live WiFi TPROXY'
+u set firewall.${LIVE_NET}_tproxy.src="$LIVE_NET"
+u set firewall.${LIVE_NET}_tproxy.proto='tcp udp'
+u set firewall.${LIVE_NET}_tproxy.mark='0x2028'
+u set firewall.${LIVE_NET}_tproxy.family='ipv4'
+u set firewall.${LIVE_NET}_tproxy.target='ACCEPT'
 
-uci -q delete firewall.${LIVE_NET}_dns
-uci set firewall.${LIVE_NET}_dns='rule'
-uci set firewall.${LIVE_NET}_dns.name='Live WiFi DNS'
-uci set firewall.${LIVE_NET}_dns.src="$LIVE_NET"
-uci set firewall.${LIVE_NET}_dns.proto='tcp udp'
-uci set firewall.${LIVE_NET}_dns.dest_port='53 12553'
-uci set firewall.${LIVE_NET}_dns.family='ipv4'
-uci set firewall.${LIVE_NET}_dns.target='ACCEPT'
+u -q delete firewall.${LIVE_NET}_wan
+u set firewall.${LIVE_NET}_wan='forwarding'
+u set firewall.${LIVE_NET}_wan.src="$LIVE_NET"
+u set firewall.${LIVE_NET}_wan.dest='wan'
 
-# Traffic marked by the live split router is accepted from this zone.
-uci -q delete firewall.${LIVE_NET}_tproxy
-uci set firewall.${LIVE_NET}_tproxy='rule'
-uci set firewall.${LIVE_NET}_tproxy.name='Live WiFi TPROXY'
-uci set firewall.${LIVE_NET}_tproxy.src="$LIVE_NET"
-uci set firewall.${LIVE_NET}_tproxy.proto='tcp udp'
-uci set firewall.${LIVE_NET}_tproxy.mark='0x2028'
-uci set firewall.${LIVE_NET}_tproxy.family='ipv4'
-uci set firewall.${LIVE_NET}_tproxy.target='ACCEPT'
-
-uci -q delete firewall.${LIVE_NET}_wan
-uci set firewall.${LIVE_NET}_wan='forwarding'
-uci set firewall.${LIVE_NET}_wan.src="$LIVE_NET"
-uci set firewall.${LIVE_NET}_wan.dest='wan'
-
-uci commit network
-uci commit dhcp
-uci commit wireless
-uci commit firewall
-uci commit system
-uci commit luci
+# --- commit ---------------------------------------------------------------
+for c in system network dhcp firewall luci wireless; do
+    uci commit "$c" >> "$LOG" 2>&1 || log "commit $c failed"
+done
 
 # --- root password --------------------------------------------------------
 HASH="$(cat /etc/dulwifi-root.hash 2>/dev/null || true)"
 if [ -n "$HASH" ]; then
-    sed -i "s#^root:[^:]*:#root:${HASH}:#" /etc/shadow
-    chmod 600 /etc/shadow
+    try sed -i "s#^root:[^:]*:#root:${HASH}:#" /etc/shadow
+    try chmod 600 /etc/shadow
     rm -f /etc/dulwifi-root.hash
+else
+    log "no root hash file, keeping the default password"
 fi
 
-/etc/init.d/dulwifi-firstboot enable
+# --- wireless is applied at every boot by this service --------------------
+try /etc/init.d/juliang-wifi enable
+
+log "first boot defaults done"
 exit 0

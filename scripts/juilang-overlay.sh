@@ -20,7 +20,8 @@ chmod 600 files/etc/shadow files/etc/dulwifi-root.hash
 # Device overlay captured from the running system.
 cp -a custom/rax3000m-nand/files/. files/
 
-for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/wan-lease-guard \
+for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/juliang-wifi \
+         etc/init.d/wan-lease-guard \
          etc/uci-defaults/96-juliang-dashboard etc/uci-defaults/97-wan-guard \
          etc/uci-defaults/99-enable-nps-wan-mac etc/uci-defaults/99-zz-dulwifi \
          etc/hotplug.d/iface/50-arpbind etc/hotplug.d/iface/98-passwall2 \
@@ -30,5 +31,11 @@ for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/wa
          usr/bin/juliang-traffic-daemon usr/bin/juliang-traffic-sample; do
     [ -e "files/$f" ] && chmod 755 "files/$f"
 done
+
+# Enable the wireless service in the image itself, so the SSIDs are applied on
+# the very first boot without depending on a successful uci-defaults run.
+mkdir -p files/etc/rc.d
+ln -sf ../init.d/juliang-wifi files/etc/rc.d/S20juliang-wifi
+ln -sf ../init.d/wan-lease-guard files/etc/rc.d/S95wan-lease-guard
 
 echo "overlay assembled: $(find files -type f | wc -l) files"
