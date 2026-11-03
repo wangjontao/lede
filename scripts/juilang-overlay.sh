@@ -32,6 +32,10 @@ for f in etc/init.d/dulwifi-firstboot etc/init.d/juliang-dashboard etc/init.d/ju
     [ -e "files/$f" ] && chmod 755 "files/$f"
 done
 
+# The shared captured network overlay may originate from a different board.
+# Correct its WAN device from /etc/board.json before network starts.
+chmod 755 files/etc/uci-defaults/99-zzz-wan-device
+
 # Enable the wireless service in the image itself, so the SSIDs are applied on
 # the very first boot without depending on a successful uci-defaults run.
 # START=95: after network (S20) and wifi (S19) are up, otherwise "wifi reload"
@@ -55,6 +59,10 @@ fi
 }
 [ -L files/etc/rc.d/S95juliang-wifi ] || {
     echo "ERROR: juliang-wifi is not enabled in /etc/rc.d" >&2
+    exit 1
+}
+[ -s files/etc/uci-defaults/99-zzz-wan-device ] || {
+    echo "ERROR: board-specific WAN device correction is missing" >&2
     exit 1
 }
 if grep -Eq "ssid='" files/usr/libexec/dulwifi-firstboot 2>/dev/null; then
