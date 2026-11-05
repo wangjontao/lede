@@ -25,6 +25,7 @@ assert "letter-spacing: -" not in css
 assert "bootstrap-dark" not in header
 assert "menu-bootstrap" not in footer and "argon" not in (header + footer + menu).lower()
 assert "luci-theme-juliang" in makefile and "PKG_VERSION:=2.8.5" in makefile
+assert "include $(TOPDIR)/feeds/luci/luci.mk" in makefile
 assert "CONFIG_PACKAGE_luci-theme-juliang=y" in config
 assert "CONFIG_PACKAGE_luci-theme-argon=y" not in config
 for package in (
