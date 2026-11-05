@@ -25,6 +25,11 @@ bananapi,bpi-r4-poe)
 bananapi,bpi-r4-lite)
 	ucidef_set_led_netdev "sfp" "sfp" "green:sfp" "sfp" "link tx rx"
 	;;
+clx,s20l)
+	ucidef_set_led_netdev "wlan5g" "5G" "blue:wlan-5ghz" "phy1-ap0"
+	ucidef_set_led_netdev "wlan2g" "2.4G" "blue:wlan-2ghz" "phy0-ap0"
+	ucidef_set_led_timer "sys" "SYS" "blue:status" "1000" "2000"
+	;;
 glinet,gl-x3000|\
 glinet,gl-xe3000)
 	ucidef_set_led_default "power" "POWER" "green:power" "1"

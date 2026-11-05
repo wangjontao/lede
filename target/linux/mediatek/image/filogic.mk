@@ -619,6 +619,16 @@ define Device/glinet_gl-mt6000
 endef
 TARGET_DEVICES += glinet_gl-mt6000
 
+define Device/clx_s20l
+  DEVICE_VENDOR := CLX
+  DEVICE_MODEL := S20L
+  DEVICE_DTS := mt7986a-clx-s20l
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-usb3 kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += clx_s20l
+
 define Device/glinet_gl-x3000-xe3000-common
   DEVICE_VENDOR := GL.iNet
   DEVICE_DTS_DIR := ../dts
