@@ -88,6 +88,7 @@ try:
         expect(page.locator(".subscription-row")).to_have_count(1)
         expect(page.locator(".subscription-row .subscription-number")).to_have_text("01")
         expect(page.locator(".subscription-row .subscription-identity")).to_contain_text("测试机场")
+        page.screenshot(path=str(OUT / "ui-subscriptions-v2.8.5.png"), full_page=True)
 
         stage = "device counters and label-only save"
         page.locator('[data-f25-view="devices"]').click()

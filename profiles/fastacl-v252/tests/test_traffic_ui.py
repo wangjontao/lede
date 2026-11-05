@@ -39,5 +39,8 @@ assert "port_traffic_status" in center
 assert "rx_bytes=tonumber" in center and "tx_bytes=tonumber" in center
 assert "script_timeout='180'" in fastacl_init
 assert "network_timeout='120'" in fastacl_init
+assert ".f252 .subscription-create{border-color:var(--jl-line)!important;background:linear-gradient(100deg,#0a1d2c,#0d2638)!important" in console
+assert ".f252 .subscription-columns{border-color:var(--jl-line)!important;background:#102738!important;color:#8fa9b8!important" in console
+assert ".f252 .subscription-empty{border-color:#2a4b5e!important;background:#091b28!important" in console
 assert "流量统计" not in console
 print("PASS control-center traffic panel samples WAN counters every 3 seconds and keeps a two-minute chart")
