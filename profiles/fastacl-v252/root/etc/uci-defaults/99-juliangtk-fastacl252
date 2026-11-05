@@ -43,10 +43,22 @@ for radio in $(uci show wireless | sed -n 's/^wireless\.\([^.=]*\)=wifi-device$/
   esac
 done
 for iface in $(uci show wireless | sed -n 's/^wireless\.\([^.=]*\)=wifi-iface$/\1/p'); do
-  uci set "wireless.$iface.ssid=JuLiang OS"
+  radio=$(uci -q get "wireless.$iface.device" || true)
+  band=$(uci -q get "wireless.$radio.band" || true)
+  case "$band" in
+    5g|5ghz)
+      uci set "wireless.$iface.ssid=JuLiang-OS-5G"
+      ;;
+    2g|2.4g|2ghz)
+      uci set "wireless.$iface.ssid=JuLiang-OS-2.4G"
+      ;;
+    *)
+      uci set "wireless.$iface.ssid=JuLiang-OS"
+      ;;
+  esac
   uci set "wireless.$iface.network=lan"
   uci set "wireless.$iface.encryption=psk2+ccmp"
-  uci set "wireless.$iface.key=a1111111"
+  uci set "wireless.$iface.key=66668888"
   uci set "wireless.$iface.disabled=0"
 done
 uci commit wireless

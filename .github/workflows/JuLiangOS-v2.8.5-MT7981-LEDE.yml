@@ -46,6 +46,7 @@ jobs:
       - name: Validate source
         run: |
           sh -n scripts/integrate-juliang-os-285.sh
+          sh -n package/luci-theme-juliang/root/etc/init.d/juliang-theme
           python3 scripts/juliang-os-mt7981.py --help >/dev/null
           python3 profiles/fastacl-v252/tests/test_mt7981_targets.py
           python3 profiles/fastacl-v252/tests/test_nps_domain.py

@@ -46,6 +46,7 @@ jobs:
           sh -n scripts/integrate-juliang-os-285.sh
           sh -n scripts/integrate-fastacl252-dependencies.sh
           sh -n profiles/fastacl-v252/root/usr/bin/fastacl252
+          sh -n package/luci-theme-juliang/root/etc/init.d/juliang-theme
           sh -n target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
           sh -n target/linux/mediatek/filogic/base-files/etc/board.d/02_network
           sh -n target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh

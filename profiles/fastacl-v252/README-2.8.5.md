@@ -29,3 +29,14 @@ This is the first JuLiang OS release with the independent
 
 - MT7986: S20L, S20P, JDCloud RE-CP-03, and Redmi AX6000 NMBM110M.
 - MT7981: all 34 device profiles present in the LEDE Filogic target.
+
+## Factory defaults
+
+- LAN address: `192.168.7.1`
+- SSH: port `20022`, user `root`, password `@password@`
+- WiFi 2.4G: `JuLiang-OS-2.4G`
+- WiFi 5G: `JuLiang-OS-5G`
+- WiFi password: `66668888`
+
+The JuLiang theme migrates preserved LuCI settings when their configured
+theme path no longer exists, preventing the Bootstrap fallback after upgrade.

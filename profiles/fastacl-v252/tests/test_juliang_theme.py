@@ -17,6 +17,7 @@ target_mk = (ROOT / "include/target.mk").read_text(encoding="utf-8")
 console = (THEME.parents[1] / "profiles/fastacl-v252/root/usr/lib/lua/luci/view/fastacl252/console.htm").read_text(encoding="utf-8")
 fastacl_controller = (ROOT / "profiles/fastacl-v252/root/usr/lib/lua/luci/controller/fastacl252.lua").read_text(encoding="utf-8")
 theme_defaults = (THEME / "root/etc/uci-defaults/30_luci-theme-juliang").read_text(encoding="utf-8")
+theme_migration = (THEME / "root/etc/init.d/juliang-theme").read_text(encoding="utf-8")
 fastacl_defaults = (
     ROOT / "profiles/fastacl-v252/root/etc/uci-defaults/99-juliangtk-fastacl252"
 ).read_text(encoding="utf-8")
@@ -54,6 +55,10 @@ assert "include $(TOPDIR)/feeds/luci/luci.mk" in makefile
 assert "mediaurlbase='/luci-static/juliang'" in theme_defaults
 assert "lang='zh_cn'" in theme_defaults
 assert "PKG_UPGRADE" not in theme_defaults
+assert 'current="$(uci -q get luci.main.mediaurlbase)"' in theme_migration
+assert '[ -f "/www${current}/cascade.css" ] && return 0' in theme_migration
+assert "mediaurlbase='/luci-static/juliang'" in theme_migration
+assert "luci-indexcache" in theme_migration
 assert "hostname=JuLiang-OS" in fastacl_defaults
 assert "max_wifi_5g=14" in fastacl_defaults and "max_wifi_2g=10" in fastacl_defaults
 assert "option max_wifi_5g '14'" in fastacl_config and "option max_wifi_2g '10'" in fastacl_config
