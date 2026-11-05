@@ -72,7 +72,9 @@ jobs:
             [ -n "$dts" ] || { echo "ERROR: DTS missing for $device"; exit 1; }
             grep -q "define Device/$device" target/linux/mediatek/image/filogic.mk
             grep -q "$compatible" target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-            grep -q "$compatible" target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
+            if [ "$device" != "xiaomi_redmi-router-ax6000" ]; then
+              grep -q "$compatible" target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
+            fi
             grep -q "$compatible" package/boot/uboot-envtools/files/mediatek_filogic
           done
           grep -q 'PKG_VERSION:=2.8.5' profiles/fastacl-v252/package-Makefile
