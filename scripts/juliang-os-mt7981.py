@@ -10,6 +10,16 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "build-configs/JuLiang-OS-v2.8.5-MT7981.json"
 SINGLE_TARGET_PREFIX = "CONFIG_TARGET_mediatek_filogic_DEVICE_"
 MULTI_TARGET_PREFIX = "CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_"
+OPTIONAL_BOOTLOADER_PACKAGES = (
+    "trusted-firmware-a-mt7981-emmc-ddr3",
+    "trusted-firmware-a-mt7981-emmc-ddr3-1866",
+    "u-boot-mt7981_cmcc_rax3000me-emmc",
+    "trusted-firmware-a-mt7981-spim-nand-ddr3",
+    "trusted-firmware-a-mt7981-spim-nand-ddr3-1866",
+    "u-boot-mt7981_cmcc_rax3000me-nand-ddr3",
+    "trusted-firmware-a-mt7981-spim-nand-ddr4",
+    "u-boot-mt7981_cmcc_rax3000me-nand-ddr4",
+)
 
 
 def load_devices():
@@ -52,6 +62,10 @@ def configure(config_path):
         if not line.startswith(SINGLE_TARGET_PREFIX)
         and not line.startswith(MULTI_TARGET_PREFIX)
         and not line.startswith("CONFIG_TARGET_ALL_PROFILES")
+        and not any(
+            line.startswith(f"CONFIG_PACKAGE_{package}=")
+            for package in OPTIONAL_BOOTLOADER_PACKAGES
+        )
     ]
     lines = replace_setting(lines, "CONFIG_TARGET_MULTI_PROFILE", "y")
     lines = replace_setting(lines, "CONFIG_TARGET_PER_DEVICE_ROOTFS", "y")

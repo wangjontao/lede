@@ -51,5 +51,9 @@ with tempfile.TemporaryDirectory() as directory:
     assert 'CONFIG_VERSION_NUMBER="v2.8.5"' in text
     assert 'CONFIG_VERSION_HWREV="MT7981"' in text
     assert 'CONFIG_VERSION_CODE="MT7981-ALL"' in text
+    assert "ARTIFACTS := $(if $(CONFIG_TARGET_MULTI_PROFILE),,emmc-preloader.bin emmc-bl31-uboot.fip)" in filogic
+    assert "ARTIFACTS := $(if $(CONFIG_TARGET_MULTI_PROFILE),,nand-ddr3-preloader.bin nand-ddr3-bl31-uboot.fip nand-ddr4-preloader.bin nand-ddr4-bl31-uboot.fip)" in filogic
+    for package in builder.OPTIONAL_BOOTLOADER_PACKAGES:
+        assert f"CONFIG_PACKAGE_{package}=" not in text
 
 print("JuLiang OS MT7981 target manifest: OK")
