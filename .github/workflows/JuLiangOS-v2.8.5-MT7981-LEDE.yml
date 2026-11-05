@@ -1,0 +1,173 @@
+name: JuLiang OS v2.8.5 MT7981 LEDE
+run-name: 'JuLiang OS v2.8.5 MT7981 - 34 supported devices'
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - codex/juliang-os-v285-lede
+    paths:
+      - '.github/workflows/JuLiangOS-v2.8.5-MT7981-LEDE.yml'
+      - 'build-configs/JuLiang-OS-S20L-v2.8.5.txt'
+      - 'build-configs/JuLiang-OS-v2.8.5-MT7981.json'
+      - 'package/luci-theme-juliang/**'
+      - 'profiles/fastacl-v252/**'
+      - 'feeds.conf.default'
+      - 'include/target.mk'
+      - 'scripts/integrate-juliang-os-285.sh'
+      - 'scripts/integrate-fastacl252-dependencies.sh'
+      - 'scripts/juliang-os-mt7981.py'
+      - 'scripts/patch-fastacl260-mtwifi.py'
+      - 'target/linux/mediatek/dts/mt7981*.dts*'
+      - 'target/linux/mediatek/image/filogic.mk'
+      - 'target/linux/mediatek/filogic/base-files/**'
+      - 'package/boot/uboot-envtools/files/mediatek_filogic'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: juliang-os-v285-mt7981-lede
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate all MT7981 targets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1 nodejs shfmt
+
+      - name: Validate source
+        run: |
+          sh -n scripts/integrate-juliang-os-285.sh
+          python3 scripts/juliang-os-mt7981.py --help >/dev/null
+          python3 profiles/fastacl-v252/tests/test_mt7981_targets.py
+          python3 profiles/fastacl-v252/tests/test_nps_domain.py
+          python3 profiles/fastacl-v252/tests/test_juliang_theme.py
+          python3 profiles/fastacl-v252/tests/test_accounts.py
+          python3 profiles/fastacl-v252/tests/test_timezone.py
+          python3 profiles/fastacl-v252/tests/test_traffic_ui.py
+          python3 profiles/fastacl-v252/tests/test_online_upgrade.py
+          python3 profiles/fastacl-v252/tests/test_mt7986_targets.py
+          LUA_PATH="profiles/fastacl-v252/root/usr/lib/lua/?.lua;;" lua5.1 profiles/fastacl-v252/tests/test_timezone.lua
+          LUA_PATH="profiles/fastacl-v252/root/usr/lib/lua/?.lua;;" lua5.1 profiles/fastacl-v252/tests/test_wifi_profile.lua
+
+  build:
+    name: Compile all 34 MT7981 images
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare build host
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup
+          sudo apt-get update
+          sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm nano ninja-build p7zip-full \
+            patch pkgconf python3 python3-pip python3-ply python3-docutils python3-pyelftools qemu-utils \
+            re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs unzip wget xmlto xxd zlib1g-dev zstd
+          sudo timedatectl set-timezone Asia/Shanghai
+          echo "BUILD_DATE=$(date +'%Y.%m.%d-%H.%M.%S')" >> "$GITHUB_ENV"
+          echo "SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          mkdir -p .ccache
+          ccache -M 5G
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.26.0
+          cache: false
+
+      - name: Restore source and compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            dl
+            .ccache
+          key: juliang-os-v285-mt7981-${{ hashFiles('feeds.conf.default', 'build-configs/JuLiang-OS-S20L-v2.8.5.txt', 'build-configs/JuLiang-OS-v2.8.5-MT7981.json', 'profiles/fastacl-v252/package-Makefile', 'profiles/fastacl-v252/singbox-Makefile', 'profiles/fastacl-v252/dns/go.mod', 'package/luci-theme-juliang/**', 'scripts/juliang-os-mt7981.py') }}
+          restore-keys: |
+            juliang-os-v285-mt7981-
+
+      - name: Resolve LEDE feeds
+        run: |
+          for attempt in 1 2 3 4; do
+            if ./scripts/feeds update -a; then
+              break
+            fi
+            [ "$attempt" -eq 4 ] && exit 1
+            rm -rf feeds/*
+            sleep $((attempt * 10))
+          done
+          ./scripts/feeds install -a
+          ./scripts/feeds install -f -p packages nps npc || true
+          ./scripts/feeds install -f -p luci luci-app-nps luci-i18n-nps-zh-cn luci-app-autoreboot || true
+          rm -rf package/luci-theme-argon package/luci-app-argon-config feeds/luci/themes/luci-theme-argon feeds/packages/luci-app-argon-config
+
+      - name: Integrate JuLiang OS and select all MT7981 targets
+        run: |
+          sh scripts/integrate-juliang-os-285.sh clx_s20l
+          python3 scripts/juliang-os-mt7981.py configure .config
+          make defconfig
+          python3 scripts/juliang-os-mt7981.py configure .config
+          python3 scripts/juliang-os-mt7981.py verify-config .config
+          grep -q '^CONFIG_PACKAGE_luci-theme-juliang=y$' .config
+          grep -q "option server_addr 'nps.jontao.top'" feeds/luci/applications/luci-app-nps/root/etc/config/nps
+          ! grep -q '^CONFIG_PACKAGE_luci-theme-argon=y$' .config
+          ! grep -Eq '^CONFIG_PACKAGE_(luci-app-store|luci-app-quickstart|quickstart|taskd)=y$' .config
+
+      - name: Download sources
+        run: |
+          make download -j4
+          find dl -type f -size -1024c -print -delete
+
+      - name: Compile all MT7981 firmware
+        run: |
+          set -o pipefail
+          make -j"$(nproc)" 2>&1 | tee build.log || make -j1 V=s 2>&1 | tee -a build.log
+
+      - name: Verify and collect MT7981 firmware
+        run: |
+          python3 scripts/juliang-os-mt7981.py collect bin/targets/mediatek/filogic upload
+          python3 scripts/juliang-os-mt7981.py verify-artifacts upload
+          cp .config upload/build.config
+          cp profiles/fastacl-v252/README-2.8.5.md upload/README-2.8.5.md
+          printf 'system=JuLiang OS\nsource=wangjontao/lede\nversion=v2.8.5\nplatform=MT7981\ndevices=34\ntheme=luci-theme-juliang\nnps=nps.jontao.top\nsource_commit=%s\n' "$SOURCE_COMMIT" > upload/BUILD.txt
+          cd upload
+          sha256sum * > SHA256SUMS
+          ls -lh
+
+      - name: Upload MT7981 firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JuLiang-OS-v2.8.5-MT7981-all-LEDE-${{ env.BUILD_DATE }}
+          path: upload/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: JuLiang-OS-v2.8.5-MT7981-failure-${{ github.run_id }}
+          path: |
+            build.log
+            .config
+            JuLiang-OS-*-final.config
+          if-no-files-found: ignore
+          retention-days: 14

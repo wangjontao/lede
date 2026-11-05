@@ -19,11 +19,13 @@ This is the first JuLiang OS release with the independent
 - Preserves the S20L multi-WiFi workflow: main WiFi/LAN default route, batch
   WiFi creation, SSID route assignment, and single-WiFi per-device routing.
 - Keeps the native sing-box dataplane, DNS policy, NPS client, traffic
-  monitoring, and online upgrade.
+  monitoring, and timezone synchronization.
+- Removes the online-upgrade controls and routes from the Lite edition.
 - Excludes iStore, QuickStart, DDNS, UPnP, WOL, NAS and unrelated proxy
   applications from the build profile.
+- Uses `nps.jontao.top` as the packaged and runtime NPS endpoint.
 
-## Validation target
+## Build targets
 
-The first compile is for `clx_s20l`. Device-side visual verification is
-required before promoting this build to additional MT7981/MT7986 models.
+- MT7986: S20L, S20P, JDCloud RE-CP-03, and Redmi AX6000 NMBM110M.
+- MT7981: all 34 device profiles present in the LEDE Filogic target.
