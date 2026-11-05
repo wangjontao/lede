@@ -13,6 +13,7 @@ menu = (THEME / "htdocs/luci-static/resources/menu-juliang.js").read_text(encodi
 css = (THEME / "htdocs/luci-static/juliang/juliang.css").read_text(encoding="utf-8")
 makefile = (THEME / "Makefile").read_text(encoding="utf-8")
 config = CONFIG.read_text(encoding="utf-8")
+target_mk = (ROOT / "include/target.mk").read_text(encoding="utf-8")
 
 assert "JuLiang OS" in header
 assert "v2.8.5" in header and "v2.8.5" in footer and "v2.8.5" in login
@@ -28,6 +29,8 @@ assert "luci-theme-juliang" in makefile and "PKG_VERSION:=2.8.5" in makefile
 assert "include $(TOPDIR)/feeds/luci/luci.mk" in makefile
 assert "CONFIG_PACKAGE_luci-theme-juliang=y" in config
 assert "CONFIG_PACKAGE_luci-theme-argon=y" not in config
+assert "ddns-scripts_aliyun" not in target_mk
+assert "luci-app-ddns" not in target_mk
 for package in (
     "luci-app-store",
     "luci-app-quickstart",

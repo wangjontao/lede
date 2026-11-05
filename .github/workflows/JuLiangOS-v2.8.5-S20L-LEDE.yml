@@ -12,6 +12,7 @@ on:
       - 'package/luci-theme-juliang/**'
       - 'profiles/fastacl-v252/**'
       - 'feeds.conf.default'
+      - 'include/target.mk'
       - 'scripts/integrate-juliang-os-285.sh'
       - 'scripts/integrate-fastacl252-dependencies.sh'
       - 'scripts/patch-fastacl260-mtwifi.py'
