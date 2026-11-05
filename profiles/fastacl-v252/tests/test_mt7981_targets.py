@@ -29,7 +29,7 @@ for match in re.finditer(r"(?ms)^define Device/([^\r\n]+)\r?\n(.*?)^endef", filo
 
 manifest = {entry["device"]: entry["dts"] for entry in entries}
 assert manifest == actual
-assert builder.image_name("jcg_q30-pro") == "juliang-os-mediatek-filogic-jcg_q30-pro-squashfs-sysupgrade.bin"
+assert builder.image_name("jcg_q30-pro") == "juliang-os-v2.8.5-mediatek-filogic-jcg_q30-pro-squashfs-sysupgrade.bin"
 
 for entry in entries:
     dts = (ROOT / f"target/linux/mediatek/dts/{entry['dts']}.dts").read_text(encoding="utf-8")

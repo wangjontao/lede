@@ -130,7 +130,7 @@ def verify_config(config_path):
 
 
 def image_name(device):
-    return f"juliang-os-mediatek-filogic-{device}-squashfs-sysupgrade.bin"
+    return f"juliang-os-v2.8.5-mediatek-filogic-{device}-squashfs-sysupgrade.bin"
 
 
 def collect(source, destination):

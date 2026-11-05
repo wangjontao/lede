@@ -34,6 +34,8 @@ assert "uci add_list rpcd.jontao.write='*'" in owner
 assert "no passwd/shadow" in owner
 
 assert "openssl passwd -1 '@password@'" in integration
+assert "rm -rf package/fastacl252/files" in integration
+assert "cp -a profiles/fastacl-v252/root/. package/fastacl252/files/" in integration
 assert "option Port         '20022'" in dropbear_defaults
 assert "network.lan.ipaddr=192.168.7.1" in wifi_defaults
 assert "wireless.$iface.ssid=JuLiang-OS-2.4G" in wifi_defaults

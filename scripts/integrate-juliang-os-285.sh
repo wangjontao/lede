@@ -53,7 +53,9 @@ test -f "target/linux/mediatek/dts/$dts.dts"
 mkdir -p package/fastacl252 package/juliangtk-sing-box
 cp profiles/fastacl-v252/package-Makefile package/fastacl252/Makefile
 cp profiles/fastacl-v252/singbox-Makefile package/juliangtk-sing-box/Makefile
-cp -a profiles/fastacl-v252/root package/fastacl252/files
+rm -rf package/fastacl252/files
+mkdir -p package/fastacl252/files
+cp -a profiles/fastacl-v252/root/. package/fastacl252/files/
 (cd profiles/fastacl-v252/dns && go mod tidy && go mod vendor && python3 ../patch_outbound.py . && CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod=vendor -trimpath -ldflags="-s -w" -o ../../../package/fastacl252/files/usr/bin/fastacl252-dns .)
 
 rm -f files/root/setup-20wifi-acl.sh files/root/add_ap20_wifi.sh
