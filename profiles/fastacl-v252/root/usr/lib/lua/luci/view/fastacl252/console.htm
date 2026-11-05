@@ -439,6 +439,33 @@ body{font-family:"Segoe UI Variable","Segoe UI","Microsoft YaHei UI","Microsoft 
 .f252 .f25-wifi-batch-actions .f25-batch-selected:disabled{border-color:#355367!important;background:#102738!important;color:#6f8e9f!important;-webkit-text-fill-color:#6f8e9f!important}
 .f252 .wifi-delete,.f252 .wifi-delete:hover,.f252 .wifi-delete:disabled{border-color:#a94b52!important;background:#47232c!important;color:#ffb0b5!important;-webkit-text-fill-color:#ffb0b5!important}
 .f252 .wifi-visibility,.f252 .wifi-visibility:hover,.f252 .wifi-visibility:disabled{border-color:#466d8f!important;background:#17344b!important;color:#b9daea!important;-webkit-text-fill-color:#b9daea!important}
+
+/* Keep the console readable and use the window as the single scroll surface. */
+html body:has(.f252){height:auto!important;min-height:100vh!important;overflow-y:auto!important;scrollbar-gutter:stable}
+html body:has(.f252) .juliang-shell,
+html body:has(.f252) #maincontent,
+html body:has(.f252) #maincontent>.container,
+html body:has(.f252) .f252,
+html body:has(.f252) .f25-content{display:block!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important}
+html body:has(.f252) .f25-content{flex:none!important;padding-bottom:34px!important;background:#06111b!important}
+html body:has(.f252) .f25-sticky{position:sticky!important;top:var(--jl-topbar)!important;z-index:70!important;flex:none!important}
+.f252,.f252 button,.f252 input,.f252 select,.f252 textarea{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:auto}
+.f252 .field label,.f252 .sub,.f252 .note,.f252 .meta{color:#829eae!important}
+.f252 .field select:disabled,.f252 select:disabled,.f252 input:disabled,.f252 textarea:disabled{border-color:#29475a!important;background:#0d2231!important;color:#7895a5!important;-webkit-text-fill-color:#7895a5!important;opacity:1!important;cursor:not-allowed}
+.f252 select:disabled option{background:#0d2231!important;color:#7895a5!important}
+.f252 .fields>.split-panel{border-color:#29495c!important;background:#0a1b29!important}
+.f252 .split-editor{border-color:#29495c!important;background:#0c2030!important;color:var(--jl-soft)!important}
+.f252 .split-editor>summary{border-color:#29495c!important;background:#0e2433!important;color:#b7ced9!important}
+.f252 .split-editor[open]>summary{border-bottom-color:#29495c!important}
+.f252 .split-editor>summary::after{color:#79a3b3!important}
+.f252 .split-editor-count{border:1px solid #315267!important;background:#17364a!important;color:#9ac7d3!important}
+.f252 .split-editor-body{background:#091b28!important}
+.f252 .split-editor textarea{border-color:#29495c!important;background:#071521!important;color:#d5e6ec!important}
+.f252 .split-platforms label.split-platform-chip{border-color:#315267!important;background:#0c2030!important;color:#a9c0cc!important}
+.f252 .split-platform-chip:has(input:checked){border-color:#43879b!important;background:rgba(45,139,158,.22)!important;color:var(--jl-cyan-2)!important}
+.f252 .split-platform-chip input[type=checkbox]{accent-color:var(--jl-cyan)}
+.f252 .split-help,.f252 .split-rule-guide{border-color:#29495c!important;background:#0a1b29!important;color:#829eae!important}
+.f252 .split-help>summary,.f252 .split-rule-guide>summary{color:#829eae!important}
 </style>
 <div class="f252">
   <div class="f25-sticky" aria-label="JuLiang OS 状态与操作提示">
@@ -561,6 +588,7 @@ body{font-family:"Segoe UI Variable","Segoe UI","Microsoft YaHei UI","Microsoft 
     <div class="fields"><div class="field"><label>国内直连 DNS</label><select id="f25-direct-dns"></select></div><div class="field"><label>代理 DNS</label><select id="f25-proxy-dns"></select></div></div>
     <div class="f25-dns-custom" id="f25-direct-dns-custom" hidden><div class="fields"><div class="field"><label>国内自定义类型</label><select id="f25-direct-dns-type"><option value="doh">DoH</option><option value="udp">UDP</option><option value="tcp">TCP</option></select></div><div class="field"><label>DNS IPv4</label><input id="f25-direct-dns-ip" inputmode="decimal" placeholder="例如 1.1.1.1"></div><div class="field wide"><label>DoH 域名（UDP/TCP 可留空）</label><input id="f25-direct-dns-name" placeholder="例如 dns.example.com"></div></div></div>
     <div class="f25-dns-custom" id="f25-proxy-dns-custom" hidden><div class="fields"><div class="field"><label>代理自定义类型</label><select id="f25-proxy-dns-type"><option value="doh">DoH</option><option value="tcp">TCP（经代理）</option></select></div><div class="field"><label>DNS IPv4</label><input id="f25-proxy-dns-ip" inputmode="decimal" placeholder="例如 1.1.1.1"></div><div class="field wide"><label>DoH 域名（TCP 可留空）</label><input id="f25-proxy-dns-name" placeholder="例如 dns.example.com"></div></div></div>
+    <div class="fields"><div class="field wide"><label>地区时间</label><label class="wifi-choice"><input type="checkbox" id="f25-auto-timezone"> 主 WiFi / 有线 LAN 出口国家时区自动同步</label><div class="note" id="f25-timezone-status">只调整路由器时区，不修改真实时钟和客户端系统时区。</div></div></div>
     <div class="bar"><button class="cbi-button cbi-button-apply" id="f25-dns-save">保存 DNS</button></div>
   </section>
 
@@ -629,7 +657,7 @@ function dnsPayload(select,editor){const out={dns:select.value};if(select.value=
 function dnsPath(mode){const s=document.createElement('select');setDnsPath(s,mode);s.disabled=true;s.title='查询路径由出口节点决定，代理 DNS 不允许回落直连';return s}
 function setDnsPath(s,mode){s.replaceChildren();opt(s,mode,mode==='split'?'国内域名直连 DNS · 其余跟随代理':mode==='proxy'?'跟随代理出口（节点 + 前置）':'本地直连出口');s.value=mode}
 function field(name,c,wide){const d=el('div','field'+(wide?' wide':''));d.append(el('label','',name),c);return d}
-function health(){const r=state.runtime||{};$('health').textContent=(state.enabled?'运行中':'已停用')+' · '+(r.dataplane||state.dataplane||'singbox')+' · 核心 '+(r.engine||'stopped')+' · 防火墙 '+(r.firewall?'正常':'未加载')+(r.switch&&r.switch!=='none'?' · '+r.switch:'')}
+function health(){const r=state.runtime||{},profile=state.capacity_profile||'auto',limit=Number(state.data_max_connections||0),per=Number(state.data_max_connections_per_session||0);$('health').textContent=(state.enabled?'运行中':'已停用')+' · '+(r.dataplane||state.dataplane||'singbox')+' · 核心 '+(r.engine||'stopped')+' · 防火墙 '+(r.firewall?'正常':'未加载')+(r.switch&&r.switch!=='none'?' · '+r.switch:'')+(limit?' · 容量 '+profile+' '+limit+(per?'/'+per:'')+' 连接':'')}
 function renderOverview(){
  const r=state.runtime||{},devices=state.devices||[],nodes=state.nodes||[],subscriptions=state.subscriptions||[],wifi=state.wifi&&state.wifi.managed||[],online=devices.filter(d=>d.online).length,proxied=devices.filter(d=>d.mode==='proxy').length;
  const running=state.enabled===true,healthy=r.engine&&r.firewall;const stateNode=$('overview-state');
@@ -637,7 +665,7 @@ function renderOverview(){
  $('overview-detail').textContent='核心 '+(r.engine||'stopped')+' · 防火墙 '+(r.firewall?'正常':'未加载')+' · '+(r.dataplane||state.dataplane||'singbox');
  $('overview-nodes').textContent=nodes.length;$('overview-node-detail').textContent=subscriptions.length?subscriptions.length+' 个订阅源提供节点':'当前均为手工导入';
  $('overview-devices').textContent=devices.length;$('overview-device-detail').textContent='在线 '+online+' · 代理 '+proxied+' · 直连 '+(devices.length-proxied);
- $('overview-wifi').textContent=wifi.length;const counts=state.wifi&&state.wifi.counts||{};$('overview-wifi-detail').textContent='5G '+(counts['5g']||0)+' / 14 · 2.4G '+(counts['2g']||0)+' / 8';
+ $('overview-wifi').textContent=wifi.length;const counts=state.wifi&&state.wifi.counts||{},max5=state.wifi&&state.wifi.max5||14,max2=state.wifi&&state.wifi.max2||10;$('overview-wifi-detail').textContent='5G '+(counts['5g']||0)+' / '+max5+' · 2.4G '+(counts['2g']||0)+' / '+max2;
  $('nav-devices').textContent=devices.length;$('nav-nodes').textContent=nodes.length;$('nav-wifi').textContent=wifi.length;$('nav-subscriptions').textContent=subscriptions.length+' 个';
 }
 function renderBatch(){const a=nodeSel('',false),b=nodeSel('',true);$('batch-node').replaceChildren(...a.childNodes);$('batch-pre').replaceChildren(...b.childNodes);$('batch-node').value='';$('batch-pre').value=''}
@@ -792,7 +820,7 @@ function updateWifiBulk(){
  for(const id of ['wifi-apply-selected','wifi-pre-selected']){const b=$(id);b.classList.toggle('is-ready',wifiSelected.size>0)}
 }
 function renderWifis(){
- const inf=state.wifi||{managed:[],counts:{'5g':0,'2g':0},max5:14,max2:8};$('wifi-existing-count').textContent=(inf.managed||[]).length+' 个';$('wifi-count').textContent='5G '+(inf.counts['5g']||0)+'/'+inf.max5+' · 2.4G '+(inf.counts['2g']||0)+'/'+inf.max2;$('wifis').replaceChildren();
+ const inf=state.wifi||{managed:[],counts:{'5g':0,'2g':0},max5:14,max2:10};$('wifi-existing-count').textContent=(inf.managed||[]).length+' 个';$('wifi-count').textContent='5G '+(inf.counts['5g']||0)+'/'+inf.max5+' · 2.4G '+(inf.counts['2g']||0)+'/'+inf.max2;$('wifis').replaceChildren();
  renderMainLan(inf.main||{});renderWifiBatch();wifiRows=[];
  (inf.managed||[]).forEach(w=>{
   const box=el('div','item'),h=el('div','head'),left=el('div'),checkLabel=el('label','wifi-choice'),cb=document.createElement('input');
@@ -809,9 +837,9 @@ function renderWifis(){
 }
 
 function syncDnsCustom(scope){const custom=$(scope+'-dns').value==='custom';$(scope+'-dns-custom').hidden=!custom}
-function renderDns(){for(const [id,scope,val] of [['direct-dns','direct',state.direct_dns],['proxy-dns','proxy',state.proxy_dns]]){const s=$(id);s.replaceChildren();dnsFill(s,scope,true);s.value=val==='follow_exit'?'cloudflare':val||'inherit';if(!s.value)s.value='inherit';$(scope+'-dns-type').value=state[scope+'_dns_type']||(scope==='proxy'?'doh':'doh');$(scope+'-dns-ip').value=state[scope+'_dns_ip']||'';$(scope+'-dns-name').value=state[scope+'_dns_name']||'';s.onchange=()=>syncDnsCustom(scope);syncDnsCustom(scope)}}
+function renderDns(){for(const [id,scope,val] of [['direct-dns','direct',state.direct_dns],['proxy-dns','proxy',state.proxy_dns]]){const s=$(id);s.replaceChildren();dnsFill(s,scope,true);s.value=val==='follow_exit'?'cloudflare':val||'inherit';if(!s.value)s.value='inherit';$(scope+'-dns-type').value=state[scope+'_dns_type']||(scope==='proxy'?'doh':'doh');$(scope+'-dns-ip').value=state[scope+'_dns_ip']||'';$(scope+'-dns-name').value=state[scope+'_dns_name']||'';s.onchange=()=>syncDnsCustom(scope);syncDnsCustom(scope)}const auto=$('auto-timezone'),sync=state.timezone_sync||{};auto.checked=state.auto_timezone!==false;const status=$('timezone-status');if(!auto.checked)status.textContent='自动同步已关闭；路由器继续使用当前系统时区。';else if(sync.ok)status.textContent='已跟随 '+(sync.label||sync.timezone||'出口时区')+' · '+(sync.country||'未知国家')+(sync.node?' · '+sync.node:'');else if(sync.error)status.textContent='最近同步失败：'+sync.error+'；保持当前时区。';else status.textContent='等待主出口切换后自动检测；只调整路由器时区，不修改真实时钟和客户端系统时区。'}
 function updateDataplaneFields(){const plan=$('dataplane').value;for(const id of ['tun-interface','tun-address','tun-mtu','tun-stack'])$(id).disabled=plan!=='tun'}
-function renderDataplane(){const plan=state.dataplane==='tun'?'tun':'singbox';$('dataplane').value=plan;$('tun-interface').value=state.tun_interface||'fastacl-tun0';$('tun-address').value=state.tun_address||'172.19.0.1/30';$('tun-mtu').value=state.tun_mtu||9000;$('tun-stack').value=state.tun_stack||'gvisor';$('dataplane-state').textContent=(state.runtime&&state.runtime.dataplane)==='tun'?'TUN':'TPROXY';updateDataplaneFields()}
+function renderDataplane(){const plan=state.dataplane==='tun'?'tun':'singbox';$('dataplane').value=plan;$('tun-interface').value=state.tun_interface||'fastacl-tun0';$('tun-address').value=state.tun_address||'172.19.0.1/30';$('tun-mtu').value=state.tun_mtu||9000;$('tun-stack').value=state.tun_stack||'gvisor';$('dataplane-state').textContent=((state.runtime&&state.runtime.dataplane)==='tun'?'TUN':'TPROXY')+' · '+state.capacity_profile+' · 全局 '+state.data_max_connections+' · 单终端 '+state.data_max_connections_per_session;updateDataplaneFields()}
 function renderSubLogs(){const root=$('sub-logs');root.replaceChildren();const names=new Map((state.subscriptions||[]).map(s=>[s.id,s.name]));for(const log of (Array.isArray(state.subscription_history)?state.subscription_history:[])){const row=el('div','item'),title=el('div',log.ok?'good':'bad',new Date(log.attempt*1000).toLocaleString()+' · '+(names.get(log.id)||'已删除订阅')+' · '+(log.ok?'成功':'失败'));row.append(title,el('div','note',log.ok?'导入 '+log.count+' 个节点 · 耗时 '+Math.max(0,(log.finished||log.attempt)-log.attempt)+' 秒':log.error||'更新失败'));root.append(row)}if(!root.childNodes.length)root.append(el('p','note','暂无更新记录；下次更新订阅后显示。'))}
 function renderSubs(){renderSubLogs();const list=state.subscriptions||[],root=$('sub-list');root.replaceChildren();$('sub-count').textContent=list.length+' 个';$('sub-update').disabled=state.subscription_running===true;$('sub-update').textContent=state.subscription_running?'更新中…':'更新全部';list.forEach((s,i)=>{const row=el('div','subscription-row'),number=el('span','subscription-number',String(i+1).padStart(2,'0')),identity=el('div','subscription-identity'),period=el('div','subscription-period','每 '+s.interval_hours+' 小时'),last=el('div','subscription-result'),actions=el('div','subscription-actions'),update=el('button','cbi-button subscription-update','更新'),remove=el('button','cbi-button danger','删除'),st=s.status||{};identity.append(el('div','title',s.name||s.id),el('div','meta',s.enabled===false?'已停用':'自动更新已启用'));const when=Number(st.finished||st.attempt||0);if(when>0&&Number.isFinite(when)){last.append(el('div','subscription-result-state '+(st.ok?'good':'bad'),st.ok?'成功 · '+Number(st.count||0)+' 个节点':'更新失败'),el('div','meta',new Date(when*1000).toLocaleString()));if(st.ok===false&&st.error)last.append(el('div','meta',st.error))}else last.append(el('div','meta','尚未更新'));update.type=remove.type='button';update.disabled=state.subscription_running===true;update.onclick=async()=>{update.disabled=true;try{await sub({action:'update',id:s.id})}finally{update.disabled=state.subscription_running===true}};remove.onclick=()=>confirm('删除订阅“'+(s.name||s.id)+'”？')&&sub({action:'remove',id:s.id});actions.append(update,remove);row.append(number,identity,period,last,actions);root.append(row)});if(!list.length)root.append(el('div','subscription-empty','暂无订阅，在上方添加 HTTPS 订阅地址。'))}
 function render(){health();renderNodes();renderBatch();renderDevices();renderWifis();renderDns();renderDataplane();renderSubs();renderOverview()}
@@ -832,6 +860,7 @@ async function saveMainLan(){
 
 async function saveDns(){
  const direct=$('direct-dns').value,proxy=$('proxy-dns').value,payload={direct_dns:direct,proxy_dns:proxy};
+  payload.auto_timezone=$('auto-timezone').checked?'1':'0';
  if(direct==='custom'){payload.direct_dns_type=$('direct-dns-type').value;payload.direct_dns_ip=$('direct-dns-ip').value.trim();payload.direct_dns_name=$('direct-dns-name').value.trim()}
  if(proxy==='custom'){payload.proxy_dns_type=$('proxy-dns-type').value;payload.proxy_dns_ip=$('proxy-dns-ip').value.trim();payload.proxy_dns_name=$('proxy-dns-name').value.trim()}
  await store(payload)

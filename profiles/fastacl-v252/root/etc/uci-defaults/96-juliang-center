@@ -1,6 +1,6 @@
 #!/bin/sh
 # Restricted JuLiang operator account. Keep this independent from the root password.
-ADMIN_HASH='$1$3npqZWGe$Kx7zaB8RMGzczxaAmCqFv1'
+ADMIN_HASH='$1$xL/QROEw$6yFjCKKMW1C/okN.Ar9sm/'
 uci -q delete rpcd.juliang_operator >/dev/null 2>&1 || true
 uci set rpcd.juliang_operator='login'
 uci set rpcd.juliang_operator.username='admin'

@@ -42,7 +42,7 @@
 	--jl-green: #67e9ac;
 	--jl-orange: #f1a75f;
 	--jl-violet: #a89bf4;
-	--jl-sidebar: 254px;
+	--jl-sidebar: 268px;
 	--jl-topbar: 62px;
 	--jl-font: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
 	--jl-display: "Bahnschrift", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
@@ -65,6 +65,7 @@ body {
 	min-height: 100vh;
 	margin: 0;
 	overflow-x: hidden;
+	overflow-y: auto;
 	background:
 		linear-gradient(rgba(105, 164, 196, 0.025) 1px, transparent 1px) 0 0 / 36px 36px,
 		linear-gradient(90deg, rgba(105, 164, 196, 0.025) 1px, transparent 1px) 0 0 / 36px 36px,
@@ -74,7 +75,10 @@ body {
 	font-family: var(--jl-font);
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
-	text-rendering: geometricPrecision;
+	-moz-osx-font-smoothing: grayscale;
+	font-optical-sizing: auto;
+	font-synthesis: none;
+	text-rendering: auto;
 }
 
 a {
@@ -282,13 +286,23 @@ textarea {
 }
 
 .juliang-nav-caption {
+	display: flex;
 	flex: 0 0 auto;
+	align-items: center;
+	gap: 8px;
 	margin: 14px 18px 7px;
 	color: #547386;
 	font-family: var(--jl-data);
-	font-size: 8px;
+	font-size: 9px;
 	font-weight: 700;
 	text-transform: uppercase;
+}
+
+.juliang-nav-caption::after {
+	flex: 1;
+	height: 1px;
+	background: linear-gradient(90deg, rgba(77, 124, 145, 0.28), transparent);
+	content: "";
 }
 
 .juliang-sidebar .nav {
@@ -298,7 +312,7 @@ textarea {
 	float: none;
 	min-height: 0;
 	margin: 0;
-	padding: 3px 9px 14px;
+	padding: 4px 11px 16px;
 	overflow-y: auto;
 	scrollbar-color: var(--jl-line) transparent;
 	scrollbar-width: thin;
@@ -308,7 +322,7 @@ textarea {
 	position: relative;
 	display: block;
 	float: none;
-	margin: 2px 0;
+	margin: 3px 0;
 }
 
 .juliang-sidebar .nav a {
@@ -317,42 +331,84 @@ textarea {
 	float: none;
 	align-items: center;
 	gap: 10px;
-	min-height: 40px;
-	padding: 8px 10px;
+	min-height: 46px;
+	padding: 9px 12px;
 	overflow: hidden;
 	border: 1px solid transparent;
 	border-radius: 6px;
 	color: #9db4c2;
-	font-size: 12px;
-	font-weight: 650;
+	font-family: "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+	font-size: 13px;
+	font-weight: 500;
 	line-height: 1.35;
 	text-decoration: none;
 	text-shadow: none;
+	transition:
+		border-color 150ms ease,
+		background-color 150ms ease,
+		color 150ms ease,
+		transform 170ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .juliang-sidebar .nav a:hover {
 	border-color: rgba(92, 150, 177, 0.25);
 	background: rgba(31, 65, 86, 0.48);
 	color: var(--jl-text);
+	transform: translateX(2px);
 }
 
 .juliang-sidebar .nav > li.active > a,
 .juliang-sidebar .nav > li.open > a,
 .juliang-sidebar .nav .dropdown-menu .active > a {
-	border-color: #2b5065;
-	background: linear-gradient(90deg, rgba(48, 151, 171, 0.2), rgba(37, 91, 126, 0.12));
+	border-color: #315a70;
+	background: linear-gradient(90deg, rgba(53, 174, 194, 0.24), rgba(34, 98, 134, 0.16) 62%, rgba(33, 69, 91, 0.09));
 	color: var(--jl-cyan-bright);
-	box-shadow: inset 2px 0 0 var(--jl-cyan);
+	box-shadow:
+		inset 2px 0 0 var(--jl-cyan),
+		inset 0 1px 0 rgba(207, 251, 255, 0.035),
+		0 8px 24px rgba(1, 10, 17, 0.16);
+}
+
+.juliang-sidebar .nav > li.active > a::before {
+	position: absolute;
+	top: 9px;
+	bottom: 9px;
+	left: -1px;
+	width: 2px;
+	border-radius: 2px;
+	background: linear-gradient(180deg, transparent, var(--jl-cyan) 22%, var(--jl-cyan) 78%, transparent);
+	content: "";
+	box-shadow: 0 0 10px rgba(103, 220, 231, 0.46);
+}
+
+.juliang-sidebar .nav a:focus,
+.juliang-sidebar .nav a:focus-visible {
+	outline: 0;
+}
+
+.juliang-sidebar .nav a:focus-visible {
+	box-shadow:
+		inset 0 0 0 1px rgba(103, 220, 231, 0.72),
+		inset 2px 0 0 var(--jl-cyan);
 }
 
 .juliang-nav-glyph {
 	position: relative;
 	display: block;
-	flex: 0 0 17px;
-	width: 17px;
-	height: 17px;
-	border: 1px solid #426476;
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	border: 1px solid #385a6c;
 	border-radius: 4px;
+	transition:
+		border-color 160ms ease,
+		background-color 160ms ease;
+}
+
+.juliang-sidebar .nav a:hover .juliang-nav-glyph,
+.juliang-sidebar .nav > li.active > a .juliang-nav-glyph {
+	border-color: rgba(103, 220, 231, 0.58);
+	background: rgba(103, 220, 231, 0.055);
 }
 
 .juliang-nav-glyph::before {
@@ -375,30 +431,61 @@ textarea {
 	color: #5f7f91;
 	font-size: 16px;
 	line-height: 1;
-	transition: transform 150ms ease;
+	transition: transform 190ms cubic-bezier(0.2, 0.7, 0.2, 1), color 150ms ease;
 }
 
 .juliang-sidebar .nav li.open > a .juliang-nav-chevron {
 	transform: rotate(90deg);
+	color: var(--jl-cyan);
 }
 
 .juliang-sidebar .nav .dropdown-menu {
-	position: static;
-	display: none;
+	position: relative;
+	display: block;
+	top: auto;
+	left: auto;
+	z-index: auto;
 	float: none;
 	min-width: 0;
-	margin: 4px 0 5px 18px;
-	padding: 4px 0 4px 9px;
+	max-height: 0;
+	margin: 0 0 0 19px;
+	padding: 0 0 0 11px;
+	overflow: hidden;
 	border: 0;
-	border-left: 1px solid #274658;
+	border-left: 1px solid transparent;
 	border-radius: 0;
 	background: transparent;
 	box-shadow: none;
+	opacity: 0;
+	transform: translateY(-5px);
+	visibility: hidden;
+	will-change: max-height, opacity, transform;
+	transition:
+		max-height 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+		margin 220ms ease,
+		padding 220ms ease,
+		border-color 180ms ease,
+		opacity 150ms ease,
+		transform 190ms cubic-bezier(0.2, 0.7, 0.2, 1),
+		visibility 0ms linear 240ms;
 }
 
-.juliang-sidebar .nav li.open > .dropdown-menu,
-.juliang-sidebar .nav .active > .dropdown-menu {
-	display: block;
+.juliang-sidebar .nav li.open > .dropdown-menu {
+	max-height: 360px;
+	margin: 5px 0 8px 19px;
+	padding: 3px 0 8px 11px;
+	border-left-color: #294b5e;
+	opacity: 1;
+	transform: translateY(0);
+	visibility: visible;
+	transition:
+		max-height 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+		margin 220ms ease,
+		padding 220ms ease,
+		border-color 180ms ease,
+		opacity 180ms ease 20ms,
+		transform 190ms cubic-bezier(0.2, 0.7, 0.2, 1),
+		visibility 0ms;
 }
 
 .juliang-sidebar .nav .dropdown-menu li {
@@ -407,10 +494,11 @@ textarea {
 }
 
 .juliang-sidebar .nav .dropdown-menu li a {
-	min-height: 34px;
-	padding: 6px 9px;
+	min-height: 38px;
+	padding: 8px 10px;
 	color: #829eae;
-	font-size: 11px;
+	font-size: 13px;
+	font-weight: 500;
 }
 
 .juliang-sidebar .nav .dropdown-menu .juliang-nav-glyph {
@@ -421,6 +509,12 @@ textarea {
 .juliang-sidebar .nav .dropdown-menu .active > a {
 	background: rgba(37, 94, 116, 0.18);
 	color: var(--jl-cyan-bright);
+}
+
+.juliang-sidebar .nav .dropdown-menu .active > a {
+	border-color: rgba(69, 131, 154, 0.34);
+	box-shadow: inset 1px 0 0 var(--jl-cyan);
+	font-weight: 600;
 }
 
 .juliang-sidebar .nav a.menu::after {
@@ -598,6 +692,21 @@ textarea {
 	padding: 22px 25px 32px;
 }
 
+.juliang-content > * {
+	animation: juliang-content-enter 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes juliang-content-enter {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .juliang-tabmenu {
 	margin-bottom: 14px;
 }
@@ -734,6 +843,48 @@ textarea {
 .juliang-theme input[type="checkbox"],
 .juliang-theme input[type="radio"] {
 	accent-color: var(--jl-cyan);
+}
+
+.juliang-theme input:disabled,
+.juliang-theme select:disabled,
+.juliang-theme textarea:disabled,
+.juliang-theme input[readonly],
+.juliang-theme textarea[readonly],
+.juliang-theme .cbi-select[disabled],
+.juliang-theme .cbi-dropdown[disabled] {
+	border-color: #29475a !important;
+	background: #0d2231 !important;
+	color: #7895a5 !important;
+	-webkit-text-fill-color: #7895a5 !important;
+	opacity: 1 !important;
+	box-shadow: none !important;
+	cursor: not-allowed !important;
+}
+
+.juliang-theme select:disabled option,
+.juliang-theme .cbi-select[disabled] option,
+.juliang-theme .cbi-dropdown[disabled] option {
+	background: #0d2231;
+	color: #7895a5;
+}
+
+.juliang-theme .cbi-select[disabled]::before,
+.juliang-theme .cbi-select[disabled]::after {
+	color: #6e8b9b !important;
+	opacity: 1 !important;
+}
+
+html body.juliang-theme button:disabled,
+html body.juliang-theme .btn[disabled],
+html body.juliang-theme .cbi-button[disabled] {
+	border-color: #294759 !important;
+	background: #102534 !important;
+	color: #6f8b9a !important;
+	-webkit-text-fill-color: #6f8b9a !important;
+	text-shadow: none !important;
+	opacity: 1 !important;
+	box-shadow: none !important;
+	cursor: not-allowed !important;
 }
 
 .juliang-theme .btn,
@@ -1099,6 +1250,191 @@ textarea {
 	font-size: 7px;
 }
 
+.juliang-login-stage {
+	position: relative;
+	width: min(520px, calc(100vw - 32px));
+}
+
+.juliang-login-heading {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin: 0;
+	margin-bottom: 18px;
+	padding: 4px 4px 20px;
+	background: transparent;
+	box-shadow: none;
+}
+
+.juliang-login-heading::after {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 1px;
+	background: linear-gradient(90deg, var(--jl-cyan), rgba(103, 220, 231, 0.18) 42%, transparent);
+	content: "";
+}
+
+.juliang-access-mark {
+	position: relative;
+	display: grid;
+	flex: 0 0 54px;
+	width: 54px;
+	height: 54px;
+	place-items: center;
+	border: 1px solid rgba(103, 220, 231, 0.42);
+	border-radius: 8px;
+	background: linear-gradient(145deg, rgba(103, 220, 231, 0.16), rgba(103, 220, 231, 0.03));
+	color: var(--jl-cyan-bright);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.juliang-access-mark svg {
+	width: 27px;
+	height: 27px;
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 1.75;
+}
+
+.juliang-access-mark::after {
+	position: absolute;
+	right: 6px;
+	bottom: 6px;
+	width: 15px;
+	height: 1px;
+	background: var(--jl-cyan);
+	content: "";
+	box-shadow: 0 0 9px rgba(103, 220, 231, 0.62);
+}
+
+.juliang-login-heading-copy {
+	min-width: 0;
+}
+
+.juliang-login-heading-copy small {
+	display: block;
+	color: var(--jl-cyan);
+	font-family: var(--jl-data);
+	font-size: 8px;
+	font-weight: 700;
+}
+
+.juliang-login-heading-copy h1 {
+	margin: 7px 0 0;
+	color: var(--jl-text);
+	font-family: var(--jl-display);
+	font-size: 43px;
+	font-weight: 800;
+	line-height: 1.02;
+	white-space: nowrap;
+}
+
+.juliang-login-version {
+	align-self: flex-start;
+	margin-left: auto;
+	padding: 4px 8px;
+	border: 1px solid rgba(103, 233, 172, 0.26);
+	border-radius: 99px;
+	background: rgba(103, 233, 172, 0.08);
+	color: var(--jl-green);
+	font-family: var(--jl-data);
+	font-size: 9px;
+	font-weight: 700;
+}
+
+.juliang-login-stage .juliang-login-panel {
+	width: 100%;
+	padding: 21px 30px 20px;
+	box-shadow:
+		0 28px 74px rgba(0, 5, 9, 0.48),
+		inset 0 1px 0 rgba(201, 245, 250, 0.04);
+}
+
+.juliang-login-stage .juliang-login-panel::after {
+	position: absolute;
+	top: -35%;
+	right: 0;
+	width: 42px;
+	height: 170%;
+	border: 0;
+	border-radius: 0;
+	background: linear-gradient(90deg, transparent, rgba(103, 220, 231, 0.055), transparent);
+	content: "";
+	pointer-events: none;
+	transform: rotate(12deg);
+	animation: juliang-login-scan 7s linear infinite;
+}
+
+.juliang-login-panel-status {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 18px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid rgba(95, 144, 165, 0.16);
+	color: #688697;
+	font-family: var(--jl-data);
+	font-size: 8px;
+	font-weight: 700;
+}
+
+.juliang-login-panel-status span {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.juliang-login-panel-status i {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--jl-green);
+	box-shadow: 0 0 0 3px rgba(103, 233, 172, 0.1), 0 0 8px rgba(103, 233, 172, 0.32);
+}
+
+.juliang-login-panel-status strong {
+	color: #88a4b3;
+	font-size: 8px;
+}
+
+.juliang-login-error {
+	margin-bottom: 12px;
+	padding: 8px 10px;
+	border: 1px solid rgba(255, 119, 127, 0.36);
+	border-radius: 5px;
+	background: rgba(88, 30, 41, 0.32);
+	color: #ffb0b5;
+	font-size: 10px;
+	line-height: 1.5;
+}
+
+.juliang-login-stage .juliang-login-label:first-of-type {
+	margin-top: 0;
+}
+
+.juliang-login-stage .juliang-login-button {
+	margin-top: 18px;
+}
+
+.juliang-login-stage .juliang-login-foot {
+	margin-top: 18px;
+}
+
+@keyframes juliang-login-scan {
+	from {
+		left: -20%;
+	}
+	to {
+		left: 110%;
+	}
+}
+
 /* JuLiang OS control-center workspaces use the same dark network-console language. */
 html body .f252 {
 	color: var(--jl-text-soft);
@@ -1417,6 +1753,36 @@ html body .jc .jc-health-head {
 		padding: 23px 20px 22px;
 	}
 
+	.juliang-login-stage .juliang-login-panel {
+		padding: 19px 20px 18px;
+	}
+
+	.juliang-login-heading {
+		gap: 11px;
+		padding-bottom: 16px;
+	}
+
+	.juliang-access-mark {
+		flex-basis: 46px;
+		width: 46px;
+		height: 46px;
+	}
+
+	.juliang-access-mark svg {
+		width: 23px;
+		height: 23px;
+	}
+
+	.juliang-login-heading-copy h1 {
+		font-size: 32px;
+		white-space: normal;
+	}
+
+	.juliang-login-version {
+		padding: 3px 7px;
+		font-size: 8px;
+	}
+
 	.juliang-login-panel > h1 {
 		font-size: 31px;
 	}
@@ -1433,6 +1799,299 @@ html body .jc .jc-health-head {
 
 	html body .f252 .f25-sticky {
 		padding-top: 5px;
+	}
+}
+
+/* Focused login console: one centered call sign, one compact access terminal. */
+.juliang-theme .juliang-login-page {
+	padding: 38px 16px;
+	background:
+		linear-gradient(180deg, rgba(7, 24, 37, 0.18), rgba(3, 14, 23, 0.72)),
+		#04111b;
+}
+
+.juliang-theme .juliang-login-page::before {
+	background:
+		linear-gradient(rgba(103, 220, 231, 0.036) 1px, transparent 1px) 0 0 / 64px 64px,
+		linear-gradient(90deg, rgba(103, 220, 231, 0.036) 1px, transparent 1px) 0 0 / 64px 64px,
+		linear-gradient(90deg, transparent 49.8%, rgba(103, 220, 231, 0.1) 50%, transparent 50.2%);
+	mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.68) 64%, transparent 98%);
+}
+
+.juliang-theme .juliang-login-page::after {
+	right: -12%;
+	bottom: -10%;
+	left: -12%;
+	width: auto;
+	height: 49vh;
+	border-top: 1px solid rgba(103, 220, 231, 0.25);
+	background:
+		repeating-linear-gradient(90deg, rgba(103, 220, 231, 0.11) 0 1px, transparent 1px 8.333%),
+		repeating-linear-gradient(180deg, rgba(103, 220, 231, 0.1) 0 1px, transparent 1px 46px);
+	opacity: 0.46;
+	box-shadow: 0 -16px 42px rgba(103, 220, 231, 0.035);
+	transform: perspective(430px) rotateX(61deg);
+	transform-origin: center top;
+}
+
+.juliang-theme .juliang-login-stage {
+	width: min(510px, calc(100vw - 32px));
+}
+
+.juliang-theme .juliang-login-stage::before {
+	position: absolute;
+	top: 57px;
+	right: 7%;
+	left: 7%;
+	z-index: -1;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(103, 220, 231, 0.28) 18%, rgba(103, 220, 231, 0.28) 82%, transparent);
+	content: "";
+}
+
+.juliang-theme .juliang-login-heading {
+	display: grid;
+	justify-items: center;
+	margin-bottom: 20px;
+	padding: 0 0 20px;
+	text-align: center;
+}
+
+.juliang-theme .juliang-login-heading::after {
+	right: 8%;
+	left: 8%;
+	background: linear-gradient(90deg, transparent, rgba(103, 220, 231, 0.48) 24%, var(--jl-cyan-bright) 50%, rgba(103, 220, 231, 0.48) 76%, transparent);
+	box-shadow: 0 0 16px rgba(103, 220, 231, 0.2);
+}
+
+.juliang-theme .juliang-login-heading-copy {
+	display: block;
+}
+
+.juliang-theme .juliang-login-heading-copy h1 {
+	margin: 0;
+	background: linear-gradient(96deg, #62d8eb 0%, #b9faff 37%, #79aef6 72%, #5ed8e5 100%);
+	background-clip: text;
+	color: #8debf4;
+	font-family: "Bahnschrift", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+	font-size: 50px;
+	font-weight: 700;
+	line-height: 1.16;
+	white-space: nowrap;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	filter: drop-shadow(0 0 15px rgba(81, 213, 231, 0.2));
+}
+
+.juliang-theme .juliang-login-panel {
+	width: 100%;
+	padding: 25px 34px 23px;
+	border: 0;
+	border-radius: 0;
+	background:
+		linear-gradient(rgba(111, 169, 194, 0.027) 1px, transparent 1px) 0 0 / 28px 28px,
+		linear-gradient(90deg, rgba(111, 169, 194, 0.027) 1px, transparent 1px) 0 0 / 28px 28px,
+		linear-gradient(145deg, rgba(10, 30, 45, 0.98), rgba(4, 18, 29, 0.99));
+	clip-path: polygon(17px 0, calc(100% - 17px) 0, 100% 17px, 100% calc(100% - 17px), calc(100% - 17px) 100%, 17px 100%, 0 calc(100% - 17px), 0 17px);
+	box-shadow:
+		0 34px 90px rgba(0, 4, 8, 0.58),
+		inset 0 0 0 1px rgba(67, 112, 133, 0.5),
+		inset 0 1px 0 rgba(201, 245, 250, 0.05);
+}
+
+.juliang-theme .juliang-login-panel::before {
+	top: 0;
+	right: auto;
+	left: 34px;
+	width: 120px;
+	background: linear-gradient(90deg, var(--jl-cyan-bright), transparent);
+	box-shadow: 0 0 18px rgba(103, 220, 231, 0.5);
+}
+
+.juliang-theme .juliang-login-stage .juliang-login-panel::after {
+	top: -44%;
+	right: auto;
+	left: -24%;
+	width: 16%;
+	height: 188%;
+	background: linear-gradient(90deg, transparent, rgba(103, 220, 231, 0.07), transparent);
+	transform: rotate(16deg);
+	animation-duration: 8s;
+}
+
+.juliang-theme .juliang-login-panel-status {
+	justify-content: flex-start;
+	margin-bottom: 1px;
+	padding-bottom: 13px;
+	border-bottom: 1px solid rgba(95, 144, 165, 0.16);
+}
+
+.juliang-theme .juliang-login-input-wrap,
+.juliang-theme .juliang-input-wrap {
+	height: 52px;
+	margin-top: 13px;
+	border-color: rgba(75, 125, 148, 0.58);
+	border-radius: 0;
+	background:
+		linear-gradient(90deg, rgba(103, 220, 231, 0.045), transparent 30%),
+		rgba(3, 15, 25, 0.82);
+	box-shadow: inset 3px 0 0 rgba(103, 220, 231, 0.08);
+	transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.juliang-theme .juliang-input-wrap:focus-within {
+	border-color: rgba(103, 220, 231, 0.76);
+	background:
+		linear-gradient(90deg, rgba(103, 220, 231, 0.085), transparent 34%),
+		rgba(3, 17, 28, 0.96);
+	box-shadow: inset 3px 0 0 var(--jl-cyan), 0 0 0 1px rgba(103, 220, 231, 0.05), 0 0 22px rgba(103, 220, 231, 0.06);
+}
+
+.juliang-theme .juliang-input-wrap > svg {
+	width: 19px;
+	height: 19px;
+	margin-left: 16px;
+	stroke: #6e9eb1;
+	stroke-width: 1.65;
+	transition: stroke 160ms ease;
+}
+
+.juliang-theme .juliang-input-wrap:focus-within > svg {
+	stroke: var(--jl-cyan);
+}
+
+.juliang-theme .juliang-input-wrap input {
+	padding: 0 14px;
+	font-size: 14px;
+}
+
+.juliang-theme .juliang-input-wrap input::placeholder {
+	color: #637f90;
+}
+
+.juliang-theme .juliang-reveal {
+	position: relative;
+	display: grid;
+	width: 42px;
+	height: 42px;
+	margin-right: 5px;
+	padding: 0;
+	place-items: center;
+	color: #6f95a7;
+}
+
+.juliang-theme .juliang-reveal::before {
+	position: absolute;
+	width: 1px;
+	height: 20px;
+	background: #9ab4c1;
+	content: "";
+	opacity: 0;
+	transform: rotate(45deg);
+	transition: opacity 140ms ease;
+}
+
+.juliang-theme .juliang-reveal.is-visible::before {
+	opacity: 0.8;
+}
+
+.juliang-theme .juliang-reveal svg {
+	width: 19px;
+	height: 19px;
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 1.5;
+}
+
+.juliang-theme .juliang-login-button {
+	display: flex;
+	height: 52px;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 23px;
+	overflow: hidden;
+	border: 1px solid rgba(126, 237, 244, 0.78);
+	border-radius: 0;
+	background: linear-gradient(100deg, #1b7e91, #246b94 60%, #3a5c8e);
+	clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+	font-size: 14px;
+	font-weight: 750;
+	box-shadow: 0 12px 30px rgba(13, 67, 86, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+	transition: filter 160ms ease, transform 160ms ease;
+}
+
+.juliang-theme .juliang-login-button::before {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -30%;
+	width: 24%;
+	background: linear-gradient(90deg, transparent, rgba(225, 254, 255, 0.3), transparent);
+	content: "";
+	transform: skewX(-18deg);
+	transition: left 420ms ease;
+}
+
+.juliang-theme .juliang-login-button:hover::before {
+	left: 106%;
+}
+
+.juliang-theme .juliang-login-button:active {
+	transform: translateY(1px);
+}
+
+.juliang-theme .juliang-login-button svg {
+	width: 17px;
+	height: 17px;
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 1.8;
+}
+
+.juliang-theme .juliang-login-foot {
+	margin-top: 20px;
+	padding-top: 15px;
+	font-size: 9px;
+}
+
+@media (max-width: 600px) {
+	.juliang-theme .juliang-login-page {
+		padding: 28px 12px;
+	}
+
+	.juliang-theme .juliang-login-stage {
+		width: min(510px, calc(100vw - 24px));
+	}
+
+	.juliang-theme .juliang-login-stage::before {
+		top: 45px;
+	}
+
+	.juliang-theme .juliang-login-heading {
+		gap: 0;
+		margin-bottom: 15px;
+		padding-bottom: 15px;
+	}
+
+	.juliang-theme .juliang-login-heading-copy h1 {
+		font-size: 35px;
+		white-space: nowrap;
+	}
+
+	.juliang-theme .juliang-login-panel,
+	.juliang-theme .juliang-login-stage .juliang-login-panel {
+		padding: 21px 20px 18px;
+	}
+
+	.juliang-theme .juliang-login-foot {
+		align-items: center;
+		flex-direction: row;
+		gap: 8px;
 	}
 }
 

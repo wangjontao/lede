@@ -125,7 +125,17 @@ function M.firewall(c,backend)
   if c.lan_default and c.lan_default.mode=='proxy' then tun_sources[#tun_sources+1]=M.cidr(c.router_ip,c.netmask) end
   local ifaces={}; local seen={}
   for _,v in ipairs(c.interfaces or {c.interface}) do if not seen[v] then ifaces[#ifaces+1]=quote_iface(v);seen[v]=true end end
-  for _,w in ipairs(c.wifis or {}) do if w.mode=='proxy' then tun_sources[#tun_sources+1]=w.subnet end end
+  local proxy_ifaces,seen_proxy_iface={},{}
+  local function add_proxy_iface(v)
+    if v and v~='' and not seen_proxy_iface[v] then seen_proxy_iface[v]=true;proxy_ifaces[#proxy_ifaces+1]=quote_iface(v) end
+  end
+  if c.lan_default and c.lan_default.mode=='proxy' then add_proxy_iface(c.interface) end
+  for _,w in ipairs(c.wifis or {}) do
+    if w.mode=='proxy' then
+      tun_sources[#tun_sources+1]=w.subnet
+      add_proxy_iface(w.interface)
+    end
+  end
   local all='iifname @lan_ifaces '; local main='iifname '..quote_iface(c.interface)..' '
   local proxy_excludes={}
   local seen_exclude={}
@@ -139,8 +149,18 @@ function M.firewall(c,backend)
   if c.dataplane=='tun' then
     intercept=all..'ip saddr @tun_sources meta mark set 0x2027\n'
   end
-  local sets=nft_set('lan_ifaces','ifname',ifaces)..nft_set('proxy_macs','ether_addr',macs)..nft_set('proxy_ips','ipv4_addr',ips)..nft_set('proxy_pairs','ether_addr . ipv4_addr',pairs)..nft_set('tun_sources','ipv4_addr',tun_sources,'flags interval; auto-merge')..nft_set('proxy_excludes','ipv4_addr',proxy_excludes,'flags interval; auto-merge')
+  local sets=nft_set('lan_ifaces','ifname',ifaces)..nft_set('proxy_ifaces','ifname',proxy_ifaces)..nft_set('proxy_macs','ether_addr',macs)..nft_set('proxy_ips','ipv4_addr',ips)..nft_set('proxy_pairs','ether_addr . ipv4_addr',pairs)..nft_set('tun_sources','ipv4_addr',tun_sources,'flags interval; auto-merge')..nft_set('proxy_excludes','ipv4_addr',proxy_excludes,'flags interval; auto-merge')
   local dns6=all..'meta nfproto ipv6 meta l4proto { tcp, udp } th dport 53 drop\n'
+  local ipv6_guard=''
+  local protocol_guard=''
+  if #proxy_ifaces>0 then
+    ipv6_guard=ipv6_guard..'iifname @proxy_ifaces meta nfproto ipv6 counter drop\n'
+    protocol_guard=protocol_guard..'iifname @proxy_ifaces meta nfproto ipv4 ip protocol != tcp ip protocol != udp counter drop\n'
+  end
+  if #macs>0 then
+    ipv6_guard=ipv6_guard..'iifname @lan_ifaces meta nfproto ipv6 ether saddr @proxy_macs counter drop\n'
+    protocol_guard=protocol_guard..'iifname @lan_ifaces meta nfproto ipv4 ether saddr @proxy_macs ip protocol != tcp ip protocol != udp counter drop\n'
+  end
   local split_sets,split_rules=require('fastacl252_split').nft(c)
   local nft='table inet fastacl252 {\n'..sets..split_sets..
     'chain prerouting { type filter hook prerouting priority -151; policy accept;\n'..
@@ -148,7 +168,7 @@ function M.firewall(c,backend)
     main..'meta nfproto ipv4 ether saddr @proxy_macs ether saddr . ip saddr != @proxy_pairs drop\n'..
     main..'meta nfproto ipv4 ip saddr @proxy_ips ether saddr . ip saddr != @proxy_pairs drop\n'..
     intercept..'}\n'..
-    'chain forward { type filter hook forward priority -10; policy accept;\n'..dns6..split_rules..
+    'chain forward { type filter hook forward priority -10; policy accept;\n'..ipv6_guard..protocol_guard..dns6..split_rules..
     '}\n'..
     'chain dns_redirect { type nat hook prerouting priority -100; policy accept;\n'..
     all..'meta nfproto ipv4 meta l4proto { tcp, udp } th dport 53 redirect to :12553\n}\n'..

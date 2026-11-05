@@ -2,8 +2,9 @@ module('luci.controller.juliang_center',package.seeall)
 function index()
   local p=entry({'admin','juliang'},firstchild(),_('JuLiang OS 控制面板'),1); p.dependent=false; p.acl_depends={'juliang-center'}
   local h=entry({'admin','juliang','home'},template('juliang_center/home'),_('JuLiang OS 监测中心'),1); h.leaf=true; h.acl_depends={'juliang-center'}
-  local w=entry({'admin','juliang','wireless'},template('juliang_center/wireless'),_('无线设备'),2); w.leaf=true; w.acl_depends={'juliang-center'}
+  local w=entry({'admin','juliang','wireless'},template('juliang_center/wireless'),_('无线设备管理'),2); w.leaf=true; w.acl_depends={'juliang-center'}
   local a=entry({'admin','juliang','status'},call('status'),nil); a.leaf=true; a.acl_depends={'juliang-center'}
+  local t=entry({'admin','juliang','port_traffic'},call('port_traffic_status'),nil);t.leaf=true;t.acl_depends={'juliang-center'}
   local r=entry({'admin','juliang','reboot'},post('reboot_action'),nil);r.leaf=true;r.acl_depends={'juliang-center'}
 end
 local function reply(t)
@@ -49,6 +50,30 @@ local function wired_ports()
     if type(net.ports)=='table' then for _,dev in ipairs(net.ports) do add(dev,role) end else add(net.device,role) end
   end
   return rows
+end
+function port_traffic_status()
+  local fs=require'nixio.fs';local json=require'luci.jsonc';local sys=require'luci.sys'
+  local board=json.parse(fs.readfile('/etc/board.json') or '') or {};local rows={};local seen={}
+  local function add(dev,role)
+    if type(dev)~='string' or not dev:match('^[%w_.%-]+$') or seen[dev] then return end
+    seen[dev]=true;local base='/sys/class/net/'..dev..'/statistics/'
+    rows[#rows+1]={
+      device=dev,
+      role=role,
+      connected=tonumber(fs.readfile('/sys/class/net/'..dev..'/carrier') or '')==1,
+      rx_bytes=tonumber(fs.readfile(base..'rx_bytes') or ''),
+      tx_bytes=tonumber(fs.readfile(base..'tx_bytes') or '')
+    }
+  end
+  for _,role in ipairs({'wan','lan'}) do
+    local net=(board.network or {})[role] or {}
+    if type(net.ports)=='table' then for _,dev in ipairs(net.ports) do add(dev,role) end else add(net.device,role) end
+  end
+  reply({
+    ok=true,
+    ports=rows,
+    timestamp=tonumber((sys.exec('cat /proc/uptime 2>/dev/null') or ''):match('^[%d.]+')) or 0
+  })
 end
 local function cpu_usage()
   local fs=require'nixio.fs';local text=fs.readfile('/proc/stat') or ''
@@ -137,5 +162,5 @@ function status()
   end
   counters.timestamp=tonumber(sys.exec('cat /proc/uptime'):match('^[%d.]+')) or up
   counters.device=dev
- reply({ok=true,reboot=can_reboot() and require('juliang_reboot').service().status() or nil,ports=wired_ports(),system=system_health(),traffic=counters,traffic_totals=traffic_totals(),hostname=sys.hostname() or 'JuLiang-OS-S20L',uptime=up,wan_up=wan.up==true,wan_ip=ip,wan_device=wan.l3_device or wan.device or '',wifi_count=wifi,managed_wifi=managed,fastacl=fast,version='JuLiang OS 2.8.5 sing-box'})
+ reply({ok=true,reboot=can_reboot() and require('juliang_reboot').service().status() or nil,ports=wired_ports(),system=system_health(),traffic=counters,traffic_totals=traffic_totals(),hostname=sys.hostname() or 'JuLiang-OS',uptime=up,wan_up=wan.up==true,wan_ip=ip,wan_device=wan.l3_device or wan.device or '',wifi_count=wifi,managed_wifi=managed,fastacl=fast,version='JuLiang OS 2.8.5 sing-box'})
 end

@@ -109,7 +109,7 @@ function M.status(u)
     if owned(s) then rows[#rows+1]={id=s['.name'],network=s.network or '',ssid=s.ssid or '',hidden=u:get('wireless',s['.name'],'hidden')=='1',band=s.band or '',subnet=s.subnet or '',mode=s.mode or 'direct',node=s.node or '',preproxy=s.preproxy or '',platforms=s.platforms or '',dns_split=s.dns_split or '0',block_domains=s.block_domains or '',split_mode=s.split_mode or 'all',split_rules=s.split_rules or '',dns=s.dns or 'inherit',dns_type=s.dns_type or '',dns_ip=s.dns_ip or '',dns_name=s.dns_name or ''} end
   end)
   table.sort(rows,function(a,b) return a.id<b.id end)
-  return {radios=map,managed=rows,counts=c,max5=tonumber(main.max_wifi_5g or 14),max2=tonumber(main.max_wifi_2g or 8),main={mode=main.lan_mode or 'direct',node=main.lan_node or '',preproxy=main.lan_preproxy or '',platforms=main.lan_platforms or '',dns_split=main.lan_dns_split or '0',block_domains=main.lan_block_domains or '',split_mode=main.lan_split_mode or 'all',split_rules=main.lan_split_rules or '',dns=main.lan_dns or 'inherit',dns_type=main.lan_dns_type or '',dns_ip=main.lan_dns_ip or '',dns_name=main.lan_dns_name or ''}}
+  return {radios=map,managed=rows,counts=c,max5=tonumber(main.max_wifi_5g or 14),max2=tonumber(main.max_wifi_2g or 10),main={mode=main.lan_mode or 'direct',node=main.lan_node or '',preproxy=main.lan_preproxy or '',platforms=main.lan_platforms or '',dns_split=main.lan_dns_split or '0',block_domains=main.lan_block_domains or '',split_mode=main.lan_split_mode or 'all',split_rules=main.lan_split_rules or '',dns=main.lan_dns or 'inherit',dns_type=main.lan_dns_type or '',dns_ip=main.lan_dns_ip or '',dns_name=main.lan_dns_name or ''}}
 end
 
 function M.update_main(u,req)
@@ -304,6 +304,30 @@ function M.hide_one(u,id,hidden)
  assert(w and w['.type']=='wifi-iface' and owned(w) and w.network==id and w.mode=='ap','附加 WiFi 接口不存在或不匹配')
  assert(u:set('wireless',id,'hidden',hidden and '1' or '0'),'保存 SSID 显示状态失败')
  return {id=id,hidden=hidden}
+end
+
+function M.update_profile(u,req)
+ req=req or {}
+ local id=tostring(req.id or '')
+ local w=u:get_all('wireless',id)
+ assert(w and w['.type']=='wifi-iface' and (not w.mode or w.mode=='ap'),'无线接口不存在')
+ local ssid=tostring(req.ssid or '')
+ assert(#ssid>=1 and #ssid<=32 and not ssid:find('[%c]') and not ssid:find('^%s*$'),'WiFi 名称需要 1-32 字节')
+ local duplicate=false
+ u:foreach('wireless','wifi-iface',function(s)
+  if s['.name']~=id and (not s.mode or s.mode=='ap') and tostring(s.ssid or '')==ssid then duplicate=true end
+ end)
+ assert(not duplicate,'WiFi 名称已存在')
+ local hidden=req.hidden==true or req.hidden==1 or tostring(req.hidden)=='1'
+ local key=tostring(req.key or '')
+ if key~='' then assert(#key>=8 and #key<=63 and not key:find('[^ -~]'),'WiFi 密码需要 8-63 个 ASCII 字符') end
+ assert(u:set('wireless',id,'ssid',ssid),'保存 WiFi 名称失败')
+ assert(u:set('wireless',id,'hidden',hidden and '1' or '0'),'保存 WiFi 显示状态失败')
+ if key~='' then
+  assert(u:set('wireless',id,'encryption','psk2+ccmp'),'保存 WiFi 加密方式失败')
+  assert(u:set('wireless',id,'key',key),'保存 WiFi 密码失败')
+ end
+ return {id=id,section=id,ssid=ssid,hidden=hidden,password_changed=key~=''}
 end
 
 function M.hide_all(u,hidden)

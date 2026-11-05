@@ -24,7 +24,7 @@ state={'ok':True,'version':VERSION+' · 本地演示','enabled':True,'direct_dns
  'devices':[{'mac':'02:00:00:00:00:01','name':'手机 A','ip':'192.168.7.101','fixed_ip':'192.168.7.101','bound':True,'online':True,'mode':'proxy','node':'us','preproxy':'front','dns':'inherit'},
             {'mac':'02:00:00:00:00:02','name':'手机 B','ip':'192.168.7.102','bound':False,'online':True,'mode':'direct','dns':'inherit'},
             {'mac':'02:00:00:00:00:03','name':'电脑 C','ip':'192.168.7.103','bound':True,'online':False,'mode':'direct','dns':'alidns'}],
- 'wifi':{'radios':{'5g':['radio1'],'2g':['radio0']},'managed':[],'main':{'mode':'direct','node':'','preproxy':'','dns':'inherit'},'counts':{'5g':0,'2g':0},'max5':14,'max2':8}}
+ 'wifi':{'radios':{'5g':['radio1'],'2g':['radio0']},'managed':[],'main':{'mode':'direct','node':'','preproxy':'','dns':'inherit'},'counts':{'5g':0,'2g':0},'max5':14,'max2':10}}
 
 
 def bound_nodes():

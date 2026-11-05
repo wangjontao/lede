@@ -5,8 +5,11 @@ provisioned="$(uci -q get fastacl252.main.provisioned || true)"
 if [ "$provisioned" != 0 ]; then
 	uci set 'fastacl252.main.version=2.8.5'
 	uci set 'fastacl252.main.dataplane=singbox'
+	uci set 'fastacl252.main.auto_timezone=1'
+	uci set 'fastacl252.main.max_wifi_5g=14'
+	uci set 'fastacl252.main.max_wifi_2g=10'
 	uci set 'fastacl252.main.provisioned=1'
-	uci set 'system.@system[0].hostname=JuLiang-OS-S20L'
+	uci set 'system.@system[0].hostname=JuLiang-OS'
 	uci set 'luci.main.mediaurlbase=/luci-static/juliang'
 	uci set 'luci.main.lang=zh_cn'
 	uci commit fastacl252
@@ -17,7 +20,7 @@ if [ "$provisioned" != 0 ]; then
 	exit 0
 fi
 
-uci set 'system.@system[0].hostname=JuLiang-OS-S20L'
+uci set 'system.@system[0].hostname=JuLiang-OS'
 uci set 'luci.main.mediaurlbase=/luci-static/juliang'
 uci set 'luci.main.lang=zh_cn'
 uci set 'network.lan.ipaddr=192.168.7.1'
@@ -51,6 +54,9 @@ uci set 'dropbear.@dropbear[0].Port=20022'; uci commit dropbear
 uci set 'fastacl252.main.fixed_exit=0'
 uci set 'fastacl252.main.version=2.8.5'
 uci set 'fastacl252.main.dataplane=singbox'
+uci set 'fastacl252.main.auto_timezone=1'
+uci set 'fastacl252.main.max_wifi_5g=14'
+uci set 'fastacl252.main.max_wifi_2g=10'
 uci set 'fastacl252.main.provisioned=1'; uci commit fastacl252
 /usr/libexec/fastacl252-enable.sh --config-only
 /etc/init.d/fastacl252 enable

@@ -10,9 +10,12 @@ fastacl_init = (ROOT / "root/etc/init.d/fastacl252").read_text(encoding="utf-8")
 assert "<h3>流量统计</h3>" in view
 assert 'id="jc-chart"' in view
 assert "luci.dispatcher.build_url('admin','juliang','status')" in view
+assert view.count("luci.dispatcher.build_url('admin','juliang','status')") == 1
 assert "t.tx_bytes" in view and "t.rx_bytes" in view
 assert 'id="jc-total-up"' in view and 'id="jc-total-down"' in view
 assert "setInterval(update,3000)" in view and "history.filter(p=>t-p.t<=120)" in view
+assert "r.traffic_totals" in view and "totalStatus.textContent='持久统计" in view
+assert "setInterval(update,30000)" not in view
 assert "bytes(t.tx_bytes)" in view and "bytes(t.rx_bytes)" in view
 assert "Math.max(0,Number(t.tx_bytes)-Number(previous.tx_bytes))" in view
 assert ".jc-speed-grid .jc-value{font-size:18px;color:#24476e}" in view
@@ -27,6 +30,13 @@ assert "cpu_percent" in center and "memory_percent" in center and "temperature_c
 assert "/proc/stat" in center and "/proc/meminfo" in center and "thermal_zone0" in center
 assert "function plot(t,up,down)" in view
 assert "}plot=function(" not in view
+assert "admin','juliang','port_traffic" in view
+assert "updatePortTraffic" in view and "jc-port-rates" in view
+assert "grid-template-columns:repeat(5,minmax(0,1fr))" in view
+assert "function linkSpeed(v)" in view and "' Gbps'" in view
+assert "port-top" in view and "port-state" in view and "port-speed" in view
+assert "port_traffic_status" in center
+assert "rx_bytes=tonumber" in center and "tx_bytes=tonumber" in center
 assert "script_timeout='180'" in fastacl_init
 assert "network_timeout='120'" in fastacl_init
 assert "流量统计" not in console

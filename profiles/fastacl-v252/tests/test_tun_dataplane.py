@@ -249,6 +249,9 @@ class TunDataplaneTests(unittest.TestCase):
         self.assertIn('set tun_sources { type ipv4_addr; flags interval; auto-merge;', nft)
         self.assertIn('192.168.7.101/32, 172.16.1.0/24', nft)
         self.assertIn('ip saddr @tun_sources meta mark set 0x2027', nft)
+        self.assertIn('set proxy_ifaces { type ifname;', nft)
+        self.assertIn('iifname @proxy_ifaces meta nfproto ipv6 counter drop', nft)
+        self.assertIn('ip protocol != tcp ip protocol != udp counter drop', nft)
         self.assertNotIn('iifname @proxy_wifi_ifaces drop', nft)
 
     def test_tproxy_firewall_intercepts_only_proxy_sources(self):
@@ -263,6 +266,7 @@ class TunDataplaneTests(unittest.TestCase):
         self.assertNotIn('ip tproxy to', nft)
         self.assertIn('meta l4proto tcp', nft)
         self.assertIn('meta l4proto udp', nft)
+        self.assertIn('iifname @lan_ifaces meta nfproto ipv6 ether saddr @proxy_macs counter drop', nft)
         self.assertNotIn('iifname @proxy_wifi_ifaces drop', nft)
 
     def test_removed_legacy_firewall_fallback_is_not_generated(self):

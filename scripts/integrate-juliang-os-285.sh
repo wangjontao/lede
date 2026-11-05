@@ -79,7 +79,7 @@ if [ -f package/base-files/files/usr/libexec/nps-wan-mac ]; then
 fi
 
 sed -i "s/192\\.168\\.[0-9]*\\.[0-9]*/192.168.7.1/g" package/base-files/files/bin/config_generate
-sed -i "s/hostname='.*'/hostname='JuLiang-OS-${tag}'/g" package/base-files/files/bin/config_generate
+sed -i "s/hostname='.*'/hostname='JuLiang-OS'/g" package/base-files/files/bin/config_generate
 ROOT_HASH=$(openssl passwd -1 '@password@')
 sed -i "s#^root:[^:]*:#root:${ROOT_HASH}:#" package/base-files/files/etc/shadow
 find package/fastacl252/files/etc/init.d package/fastacl252/files/etc/hotplug.d package/fastacl252/files/etc/uci-defaults -type f -exec chmod 755 {} \;
@@ -101,7 +101,10 @@ else
     build-configs/JuLiang-OS-S20L-v2.8.5.txt > .config
 fi
 make defconfig
-sed -i "s/JuLiang-OS-S20L/JuLiang-OS-${tag}/g" package/fastacl252/files/etc/uci-defaults/99-juliangtk-fastacl252
+sed -i \
+  -e "s/^CONFIG_VERSION_HWREV=.*/CONFIG_VERSION_HWREV=\"${tag}\"/" \
+  -e "s/^CONFIG_VERSION_CODE=.*/CONFIG_VERSION_CODE=\"${tag}\"/" \
+  .config
 sh scripts/integrate-fastacl252-dependencies.sh
 for pkg in luci-theme-juliang luci-app-ttyd luci-app-autoreboot nps npc luci-app-nps lyaml fastacl252 juliangtk-sing-box kmod-tun firewall4 vnstat2; do
   grep -q "^CONFIG_PACKAGE_${pkg}=y" .config || { echo "Required package missing: $pkg"; exit 1; }

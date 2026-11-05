@@ -24,18 +24,30 @@ function M.read()
  u:foreach('fastacl252','device',function(d)if d.mac and d.name and d.name~='' then names[d.mac:upper()]=d.name end end)
  for line in sys.exec('ip -4 neigh show 2>/dev/null'):gmatch('[^\n]+') do local ip,dev,mac=line:match('^(%S+)%s+dev%s+(%S+).-lladdr%s+(%S+)');if mac then ips[dev..'/'..mac:upper()]=ip end end
  local status=json.parse(sys.exec('ubus call network.wireless status 2>/dev/null')) or {}
+ local runtime={}
  for radio,info in pairs(status) do
   for _,iface in ipairs(info.interfaces or {}) do
-   local dev=iface.ifname;local cfg=iface.config or {}
-   if type(dev)=='string' and dev:match('^[%w_.%-]+$') and (cfg.mode=='ap' or cfg.mode==nil) then
-    local net=cfg.network;if type(net)=='table' then net=net[1] end
-    local bridge=net and u:get('network',net,'device') or ''
-    local stations=M.parse(sys.exec('iw dev '..dev..' station dump 2>/dev/null'))
-    for _,s in ipairs(stations) do s.name=names[s.mac] or '';s.ip=ips[(bridge or '')..'/'..s.mac] or '' end
-    rows[#rows+1]={id=dev,ssid=cfg.ssid or u:get('wireless',iface.section or '','ssid') or dev,radio=radio,network=net or '',stations=stations,up=info.up==true}
-   end
+   if iface.section then runtime[iface.section]={radio=radio,ifname=iface.ifname,config=iface.config or {},up=info.up==true} end
   end
  end
+ u:foreach('wireless','wifi-iface',function(w)
+  local section=w['.name'];local cfg=runtime[section] or {};local dev=cfg.ifname
+  if (not w.mode or w.mode=='ap') and type(section)=='string' then
+   local net=w.network or (cfg.config or {}).network;if type(net)=='table' then net=net[1] end
+   local bridge=net and u:get('network',net,'device') or ''
+   local stations={}
+   if type(dev)=='string' and dev:match('^[%w_.%-]+$') then
+    stations=M.parse(sys.exec('iw dev '..dev..' station dump 2>/dev/null'))
+    for _,s in ipairs(stations) do s.name=names[s.mac] or '';s.ip=ips[(bridge or '')..'/'..s.mac] or '' end
+   end
+   rows[#rows+1]={
+    id=dev or section,section=section,ssid=w.ssid or cfg.config.ssid or section,
+    radio=cfg.radio or w.device or '',band=(w.device and u:get('wireless',w.device,'band')) or '',
+    device=w.device or '',network=net or '',hidden=w.hidden=='1',disabled=w.disabled=='1',
+    stations=stations,up=cfg.up==true
+   }
+  end
+ end)
  table.sort(rows,function(a,b)return a.ssid<b.ssid end)
  local uptime=tonumber(sys.exec('cat /proc/uptime'):match('^[%d.]+')) or os.time()
  return {ok=true,interfaces=rows,timestamp=uptime,interval=3}

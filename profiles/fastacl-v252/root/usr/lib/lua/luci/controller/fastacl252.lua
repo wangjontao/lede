@@ -102,7 +102,7 @@ function status()
   end)
   table.sort(subscriptions,function(a,b) return a.name<b.name end)
   local dns_stats=json.parse(require('luci.sys').exec('/usr/bin/fastacl252-dns -stats -config /tmp/fastacl252/dns.json 2>/dev/null') or '') or {}
-  reply({dns_stats=dns_stats,ok=true,version='2.8.5',enabled=c.enabled,dataplane=c.dataplane,tun_interface=c.tun_interface,tun_address=c.tun_address,tun_mtu=c.tun_mtu,tun_stack=c.tun_stack,devices=env.inventory(c,u),nodes=nodes,subscriptions=subscriptions,dns_catalog=dns.catalog(),direct_dns=c.direct_dns,direct_dns_type=c.direct_dns_type,direct_dns_ip=c.direct_dns_ip,direct_dns_name=c.direct_dns_name,proxy_dns=c.proxy_dns,proxy_dns_type=c.proxy_dns_type,proxy_dns_ip=c.proxy_dns_ip,proxy_dns_name=c.proxy_dns_name,wifi=wifi.status(u),network=c.network,router_ip=c.router_ip,runtime=runtime,job=fs.readfile('/tmp/fastacl252/apply.result'),apply_log=tail(fs.readfile('/tmp/fastacl252/apply.log') or '',3000),subscription_history=json.parse(fs.readfile('/tmp/fastacl252/subscription-history.json') or '') or {},subscription_running=fs.access('/tmp/fastacl252-subscribe.lock') or false})
+  reply({dns_stats=dns_stats,ok=true,version='2.8.5',enabled=c.enabled,auto_timezone=c.auto_timezone,timezone_sync=json.parse(fs.readfile('/tmp/fastacl252/timezone.json') or '') or {},capacity_profile=c.capacity_profile,data_max_connections=c.data_max_connections,data_max_connections_per_session=c.data_max_connections_per_session,dataplane=c.dataplane,tun_interface=c.tun_interface,tun_address=c.tun_address,tun_mtu=c.tun_mtu,tun_stack=c.tun_stack,devices=env.inventory(c,u),nodes=nodes,subscriptions=subscriptions,dns_catalog=dns.catalog(),direct_dns=c.direct_dns,direct_dns_type=c.direct_dns_type,direct_dns_ip=c.direct_dns_ip,direct_dns_name=c.direct_dns_name,proxy_dns=c.proxy_dns,proxy_dns_type=c.proxy_dns_type,proxy_dns_ip=c.proxy_dns_ip,proxy_dns_name=c.proxy_dns_name,wifi=wifi.status(u),network=c.network,router_ip=c.router_ip,runtime=runtime,job=fs.readfile('/tmp/fastacl252/apply.result'),apply_log=tail(fs.readfile('/tmp/fastacl252/apply.log') or '',3000),subscription_history=json.parse(fs.readfile('/tmp/fastacl252/subscription-history.json') or '') or {},subscription_running=fs.access('/tmp/fastacl252-subscribe.lock') or false})
 end
 
 -- Main-LAN device changes are application-layer hot changes. dnsmasq is reloaded
@@ -130,6 +130,7 @@ function save()
       c.proxy_dns=validate_dns_setting(request.proxy_dns,'proxy',request.proxy_dns_type,request.proxy_dns_ip,request.proxy_dns_name)
       c.proxy_dns_type=tostring(request.proxy_dns_type or 'doh'); c.proxy_dns_ip=tostring(request.proxy_dns_ip or ''); c.proxy_dns_name=tostring(request.proxy_dns_name or '')
     end
+    if request.auto_timezone~=nil then c.auto_timezone=tostring(request.auto_timezone)=='1' or request.auto_timezone==true end
     if request.dataplane then c.dataplane=tostring(request.dataplane) end
     if request.tun_interface then c.tun_interface=tostring(request.tun_interface) end
     if request.tun_address then c.tun_address=tostring(request.tun_address) end
@@ -177,6 +178,7 @@ function save()
       if c.proxy_dns=='custom' then u:set('fastacl252','main','proxy_dns_type',c.proxy_dns_type);u:set('fastacl252','main','proxy_dns_ip',c.proxy_dns_ip);u:set('fastacl252','main','proxy_dns_name',c.proxy_dns_name)
       else u:delete('fastacl252','main','proxy_dns_type');u:delete('fastacl252','main','proxy_dns_ip');u:delete('fastacl252','main','proxy_dns_name') end
     end
+    if request.auto_timezone~=nil then u:set('fastacl252','main','auto_timezone',c.auto_timezone and '1' or '0') end
     if request.dataplane then u:set('fastacl252','main','dataplane',c.dataplane) end
     if request.tun_interface then u:set('fastacl252','main','tun_interface',c.tun_interface) end
     if request.tun_address then u:set('fastacl252','main','tun_address',c.tun_address) end
@@ -264,6 +266,26 @@ function wifi_action()
   if type(req)~='table' then reply({ok=false,error='WiFi 请求格式错误'}); return end
   if not acquire_lock(fs) then return end
   local u=require('uci').cursor(); local manager=require 'fastacl252_wifi'; local result; local detail=''
+
+  if req.action=='profile_update' then
+    local original=fs.readfile('/etc/config/wireless')
+    local ok,err=pcall(function()
+      local pending=u:changes('wireless'); assert(not pending or not next(pending),'请先保存或撤销无线配置')
+      result=manager.update_profile(u,req)
+      assert(u:commit('wireless'),'保存无线设置失败')
+      assert(sys.call('wifi reload >/dev/null 2>&1')==0,'无线配置应用失败')
+    end)
+    if not ok then
+      u:revert('wireless')
+      if original then fs.writefile('/etc/config/wireless',original);sys.call('wifi reload >/dev/null 2>&1') end
+    end
+    release_lock(fs)
+    reply(ok and {
+      ok=true,result=result,
+      message='无线设置已应用。名称、密码或隐藏状态变更后，已连接终端可能需要重新连接。'
+    } or {ok=false,error=tostring(err)})
+    return
+  end
 
   if req.action=='update' or req.action=='lan_update' or req.action=='bulk_update' or req.action=='apply_batch' or req.action=='preproxy_batch' then
     local original=fs.readfile('/etc/config/fastacl252'); local committed=false

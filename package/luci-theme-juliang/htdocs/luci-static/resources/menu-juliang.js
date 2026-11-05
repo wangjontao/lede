@@ -12,7 +12,7 @@ return baseclass.extend({
 		var body = document.body;
 		var button = document.getElementById('juliang-menu-button');
 		var scrim = document.getElementById('juliang-scrim');
-		var revision = '285-1';
+		var revision = '285-2';
 
 		try {
 			var key = 'luci-session-store';
@@ -57,7 +57,8 @@ return baseclass.extend({
 		const labels = {
 			'System': '系统',
 			'Network': '网络',
-			'Log out': '退出'
+			'Log out': '退出',
+			'无线设备': '无线设备管理'
 		};
 
 		return labels[title] || title;
@@ -120,10 +121,11 @@ return baseclass.extend({
 		children.forEach(child => {
 			const submenu = this.renderMainMenu(child, url + '/' + child.name, (level || 0) + 1);
 			const hasChildren = !!submenu.firstElementChild;
+			const isOpen = !level && hasChildren && active(child.name);
 			const subclass = [
 				(!level && hasChildren) ? 'dropdown' : '',
 				active(child.name) ? 'active' : '',
-				(!level && hasChildren && active(child.name)) ? 'open' : ''
+				isOpen ? 'open' : ''
 			].filter(Boolean).join(' ');
 			const linkclass = (!level && hasChildren) ? 'menu' : '';
 			const linkurl = hasChildren ? '#' : L.url(url, child.name);
@@ -135,11 +137,32 @@ return baseclass.extend({
 
 			const li = E('li', { 'class': subclass }, [ link, submenu ]);
 
-			if (!level && hasChildren)
+			if (!level && hasChildren) {
+				link.setAttribute('aria-expanded', String(isOpen));
+				submenu.setAttribute('aria-hidden', String(!isOpen));
 				link.addEventListener('click', function (event) {
 					event.preventDefault();
-					li.classList.toggle('open');
+					const opening = !li.classList.contains('open');
+
+					document.querySelectorAll('#topmenu > li.dropdown.open').forEach(function (item) {
+						if (item === li)
+							return;
+
+						item.classList.remove('open');
+						var toggle = item.querySelector(':scope > a');
+						var children = item.querySelector(':scope > .dropdown-menu');
+
+						if (toggle)
+							toggle.setAttribute('aria-expanded', 'false');
+						if (children)
+							children.setAttribute('aria-hidden', 'true');
+					});
+
+					li.classList.toggle('open', opening);
+					link.setAttribute('aria-expanded', String(opening));
+					submenu.setAttribute('aria-hidden', String(!opening));
 				});
+			}
 
 			ul.appendChild(li);
 		});

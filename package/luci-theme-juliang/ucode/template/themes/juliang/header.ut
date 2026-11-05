@@ -9,11 +9,11 @@
 	const boardinfo = ubus.call('system', 'board');
 	const hostname = striptags(boardinfo?.hostname ?? 'JuLiang OS');
 	const routeTitles = {
+		'': 'JuLiang OS 监测中心',
 		'admin-juliang-home': 'JuLiang OS 监测中心',
-		'admin-juliang-wireless': '无线设备',
+		'admin-juliang-wireless': '无线设备管理',
 		'admin-juliang-fastacl': 'JuLiang OS 控制台',
 		'admin-juliang-bbr': 'BBR TCP 加速',
-		'admin-juliang-upgrade': '在线升级',
 		'admin-system-nps': 'JuLiang OS 管理',
 		'admin-status-overview': '状态概览'
 	};
@@ -31,7 +31,7 @@
 		<meta name="theme-color" content="#07131f">
 		<title>{{ pageTitle }} - JuLiang OS</title>
 		<link rel="stylesheet" href="{{ media }}/cascade.css">
-		<link rel="stylesheet" href="{{ media }}/juliang.css">
+		<link rel="stylesheet" href="{{ media }}/juliang.css?v=285-r2">
 		<link rel="icon" href="{{ media }}/logo.svg" sizes="any">
 		{% if (node?.css): %}
 		<link rel="stylesheet" href="{{ resource }}/{{ node.css }}">
@@ -47,7 +47,7 @@
 		{% if (!blank_page): %}
 		<aside class="juliang-sidebar" id="juliang-sidebar" aria-label="JuLiang OS 主导航">
 			<div class="juliang-brand-panel">
-				<a class="juliang-brand" href="{{ dispatcher.build_url('admin/status/overview') }}">
+				<a class="juliang-brand" href="{{ dispatcher.build_url('admin/juliang/home') }}">
 					<span class="juliang-brand-mark" aria-hidden="true">
 						<svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h3a3 3 0 0 0 3-3V8a3 3 0 0 1 3-3"/><path d="m5 17 1 2-2 1"/></svg>
 					</span>

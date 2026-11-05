@@ -12,16 +12,17 @@ import (
 )
 
 func TestProbeParsers(t *testing.T) {
-	for _, x := range []struct{ format, body, ip, country string }{
-		{"ipip", "当前 IP：42.237.26.134  来自于：中国 河南 安阳 联通\n", "42.237.26.134", "CN"},
-		{"trace", "ip=160.248.81.31\nloc=JP\n", "160.248.81.31", "JP"},
-		{"json", `{"ip":"8.8.8.8"}`, "8.8.8.8", ""},
-		{"ipip", "<html>42.237.26.134</html>", "", ""},
-		{"json", `{"ip":"192.168.1.1"}`, "", ""},
-		{"json", `{"ip":"100.64.0.1"}`, "", ""},
+	for _, x := range []struct{ format, body, ip, country, timezone string }{
+		{"ipip", "当前 IP：42.237.26.134  来自于：中国 河南 安阳 联通\n", "42.237.26.134", "CN", ""},
+		{"trace", "ip=160.248.81.31\nloc=JP\n", "160.248.81.31", "JP", ""},
+		{"json", `{"ip":"8.8.8.8"}`, "8.8.8.8", "", ""},
+		{"ipwho", `{"success":true,"ip":"104.28.241.10","country_code":"US","country":"United States","region":"California","city":"Los Angeles","timezone":{"id":"America/Los_Angeles"}}`, "104.28.241.10", "US", "America/Los_Angeles"},
+		{"ipip", "<html>42.237.26.134</html>", "", "", ""},
+		{"json", `{"ip":"192.168.1.1"}`, "", "", ""},
+		{"json", `{"ip":"100.64.0.1"}`, "", "", ""},
 	} {
 		a := parseProbe(x.format, []byte(x.body))
-		if a.ip != x.ip || a.country != x.country {
+		if a.ip != x.ip || a.country != x.country || a.timezone != x.timezone {
 			t.Fatalf("%+v => %+v", x, a)
 		}
 	}
@@ -47,7 +48,7 @@ func TestEverySourceStaysOnSelectedDialer(t *testing.T) {
 	if len(d.addresses) != len(probeSources) {
 		t.Fatal(d.addresses)
 	}
-	for _, host := range []string{"myip.ipip.net:443", "1.1.1.1:443", "api.ipify.org:443"} {
+	for _, host := range []string{"ipwho.is:443", "myip.ipip.net:443", "1.1.1.1:443", "api.ipify.org:443"} {
 		found := false
 		for _, got := range d.addresses {
 			found = found || got == host

@@ -33,5 +33,15 @@ print('PASS wireless counters, missing fields, signal/link rates and restricted 
 center=(ROOT/'root/usr/lib/lua/luci/controller/juliang_center.lua').read_text(encoding='utf-8')
 assert 'statistics/rx_bytes' in center and 'statistics/tx_bytes' in center
 assert 'traffic=counters' in center
+assert "_('无线设备管理')" in center
 wireless_view=(ROOT/'root/usr/lib/lua/luci/view/juliang_center/wireless.htm').read_text(encoding='utf-8')
-assert '.wmon .stat strong{' in wireless_view and 'color:#d94747' in wireless_view
+assert '无线设备管理' in wireless_view
+assert 'profile_update' in wireless_view and 'action:\'profile_update\'' in wireless_view
+assert '实时上传' in wireless_view and '本次上传' in wireless_view
+assert 'grid-template-columns:repeat(4,minmax(0,1fr))' in wireless_view
+assert '@container(max-width:520px)' in wireless_view
+assert '编辑设置' not in wireless_view or '编辑' in wireless_view
+wireless_module=(ROOT/'root/usr/lib/lua/fastacl252_wireless.lua').read_text(encoding='utf-8')
+wifi_module=(ROOT/'root/usr/lib/lua/fastacl252_wifi.lua').read_text(encoding='utf-8')
+assert 'section=section' in wireless_module and 'hidden=w.hidden' in wireless_module
+assert 'function M.update_profile' in wifi_module and "encryption','psk2+ccmp'" in wifi_module

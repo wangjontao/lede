@@ -47,8 +47,13 @@ imou,lc-hx3001)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x20000" "0x20000"
 	;;
 clx,s20l|\
+clx,s20p|\
 glinet,gl-mt2500|\
 glinet,gl-mt6000)
+	local envdev=$(find_mmc_part "u-boot-env")
+	ubootenv_add_uci_config "$envdev" "0x0" "0x80000"
+	;;
+jdcloud,re-cp-03)
 	local envdev=$(find_mmc_part "u-boot-env")
 	ubootenv_add_uci_config "$envdev" "0x0" "0x80000"
 	;;

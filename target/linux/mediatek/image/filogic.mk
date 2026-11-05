@@ -629,6 +629,16 @@ define Device/clx_s20l
 endef
 TARGET_DEVICES += clx_s20l
 
+define Device/clx_s20p
+  DEVICE_VENDOR := CLX
+  DEVICE_MODEL := S20P
+  DEVICE_DTS := mt7986a-clx-s20p
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-usb3 kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += clx_s20p
+
 define Device/glinet_gl-x3000-xe3000-common
   DEVICE_VENDOR := GL.iNet
   DEVICE_DTS_DIR := ../dts
@@ -782,6 +792,16 @@ define Device/jcg_q30-pro
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += jcg_q30-pro
+
+define Device/jdcloud_re-cp-03
+  DEVICE_VENDOR := JDCloud
+  DEVICE_MODEL := RE-CP-03
+  DEVICE_DTS := mt7986a-jdcloud-re-cp-03
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-mmc kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += jdcloud_re-cp-03
 
 define Device/jdcloud_re-cs-05
   DEVICE_VENDOR := JDCloud

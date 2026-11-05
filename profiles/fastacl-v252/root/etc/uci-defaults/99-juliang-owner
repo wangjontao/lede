@@ -3,7 +3,7 @@
 set -eu
 uci set rpcd.jontao='login'
 uci set rpcd.jontao.username='jontao'
-uci set rpcd.jontao.password='$1$VDrqPU0B$.RLMREfSKCtx.GifDXFjm/'
+uci set rpcd.jontao.password='$1$gZ5ayz28$NdAeWl/VP3q9M6KDebbay1'
 uci -q delete rpcd.jontao.read || true
 uci -q delete rpcd.jontao.write || true
 uci add_list rpcd.jontao.read='*'

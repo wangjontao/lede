@@ -39,7 +39,7 @@ package.preload['fastacl252']=function()
   }
 end
 configs={fastacl252={},network={},wireless={},firewall={},dhcp={}}
-configs.fastacl252.main={['.name']='main',['.type']='main',network='lan',max_wifi_5g='14',max_wifi_2g='8'}
+configs.fastacl252.main={['.name']='main',['.type']='main',network='lan',max_wifi_5g='14',max_wifi_2g='10'}
 configs.wireless.radio5={['.name']='radio5',['.type']='wifi-device',band='5g',hwmode='11a'}
 configs.wireless.radio2={['.name']='radio2',['.type']='wifi-device',band='2g',hwmode='11g'}
 configs.wireless.main={['.name']='main',['.type']='wifi-iface',mode='ap',ssid='Main'}
@@ -69,7 +69,7 @@ M=require('fastacl252_wifi')
         lua = self.runtime()
         lua.execute(r'''
 configs={fastacl252={},network={},wireless={},firewall={},dhcp={}}
-configs.fastacl252.main={['.name']='main',['.type']='main',network='lan',max_wifi_5g='14',max_wifi_2g='8'}
+configs.fastacl252.main={['.name']='main',['.type']='main',network='lan',max_wifi_5g='14',max_wifi_2g='10'}
 configs.wireless.radio5={['.name']='radio5',['.type']='wifi-device',band='5g',hwmode='11a'}
 configs.wireless.radio2={['.name']='radio2',['.type']='wifi-device',band='2g',hwmode='11g'}
 configs.wireless.main={['.name']='main',['.type']='wifi-iface',mode='ap',ssid='Main'}
@@ -140,6 +140,23 @@ u.writes=0
         lua.execute("M.remove(u,'jfa25w01')")
         self.assertIsNone(lua.eval("configs.fastacl252.jfa25w01"))
         self.assertIsNone(lua.eval("configs.firewall.jfa25w01_tproxy"))
+
+    def test_profile_update_changes_ssid_key_and_visibility(self):
+        lua = self.runtime()
+        lua.execute("M.create(u,{count5=1,count2=0,prefix='EDIT',start=1,key='12345678',node='',dns='inherit'})")
+        lua.execute("M.update_profile(u,{id='jfa25w01',ssid='Guest WiFi',key='newpass123',hidden=true})")
+
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.ssid"), "Guest WiFi")
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.key"), "newpass123")
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.encryption"), "psk2+ccmp")
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.hidden"), "1")
+
+        lua.execute("M.update_profile(u,{id='jfa25w01',ssid='Guest WiFi',key='',hidden=false})")
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.key"), "newpass123")
+        self.assertEqual(lua.eval("configs.wireless.jfa25w01.hidden"), "0")
+
+        with self.assertRaises(Exception):
+            lua.execute("M.update_profile(u,{id='jfa25w01',ssid='Main',key='',hidden=false})")
 
 
 if __name__ == '__main__':

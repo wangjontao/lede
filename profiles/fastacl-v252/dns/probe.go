@@ -19,9 +19,10 @@ type probeSpec struct {
 	Link string `json:"link"`
 }
 type probeSource struct{ name, url, format string }
-type probeAnswer struct{ ip, country, location, source, failure string }
+type probeAnswer struct{ ip, country, location, timezone, source, failure string }
 
 var probeSources = []probeSource{
+	{"ipwho.is", "https://ipwho.is/", "ipwho"},
 	{"IPIP 国内检测源", "https://myip.ipip.net", "ipip"},
 	{"Cloudflare", "https://1.1.1.1/cdn-cgi/trace", "trace"},
 	{"ipify", "https://api.ipify.org?format=json", "json"},
@@ -61,6 +62,32 @@ func parseProbe(format string, b []byte) probeAnswer {
 		}
 		if json.Unmarshal(b, &v) == nil {
 			a.ip = publicIP(v.IP)
+		}
+	case "ipwho":
+		var v struct {
+			Success     bool   `json:"success"`
+			IP          string `json:"ip"`
+			CountryCode string `json:"country_code"`
+			Country     string `json:"country"`
+			Region      string `json:"region"`
+			City        string `json:"city"`
+			Timezone    struct {
+				ID string `json:"id"`
+			} `json:"timezone"`
+		}
+		if json.Unmarshal(b, &v) == nil && v.Success {
+			a.ip = publicIP(v.IP)
+			a.country = strings.ToUpper(strings.TrimSpace(v.CountryCode))
+			a.timezone = strings.TrimSpace(v.Timezone.ID)
+			parts := []string{}
+			for _, part := range []string{v.City, v.Region, v.Country} {
+				if part = strings.TrimSpace(part); part != "" {
+					parts = append(parts, part)
+				}
+			}
+			if len(parts) > 0 && len(strings.Join(parts, " ")) <= 256 {
+				a.location = strings.Join(parts, " ")
+			}
 		}
 	case "ipip":
 		if !strings.HasPrefix(s, "当前 IP：") {
@@ -180,6 +207,7 @@ func runProbe(path string) {
 	result["ip"] = a.ip
 	result["country"] = a.country
 	result["location"] = a.location
+	result["timezone"] = a.timezone
 	result["source"] = a.source
 	result["elapsed_ms"] = time.Since(start).Milliseconds()
 }

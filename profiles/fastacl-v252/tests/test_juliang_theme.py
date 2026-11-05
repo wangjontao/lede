@@ -14,19 +14,39 @@ css = (THEME / "htdocs/luci-static/juliang/juliang.css").read_text(encoding="utf
 makefile = (THEME / "Makefile").read_text(encoding="utf-8")
 config = CONFIG.read_text(encoding="utf-8")
 target_mk = (ROOT / "include/target.mk").read_text(encoding="utf-8")
+console = (THEME.parents[1] / "profiles/fastacl-v252/root/usr/lib/lua/luci/view/fastacl252/console.htm").read_text(encoding="utf-8")
+fastacl_controller = (ROOT / "profiles/fastacl-v252/root/usr/lib/lua/luci/controller/fastacl252.lua").read_text(encoding="utf-8")
 theme_defaults = (THEME / "root/etc/uci-defaults/30_luci-theme-juliang").read_text(encoding="utf-8")
 fastacl_defaults = (
     ROOT / "profiles/fastacl-v252/root/etc/uci-defaults/99-juliangtk-fastacl252"
 ).read_text(encoding="utf-8")
+fastacl_config = (
+    ROOT / "profiles/fastacl-v252/root/etc/config/fastacl252"
+).read_text(encoding="utf-8")
 
 assert "JuLiang OS" in header
-assert "v2.8.5" in header and "v2.8.5" in footer and "v2.8.5" in login
+assert "v2.8.5" in header and "v2.8.5" in footer
+assert "routeTitles['admin-juliang-home']" not in header
+assert "const routeTitles = {\n\t\t'': 'JuLiang OS 监测中心'" in header
+assert "炬量网络控制台" in login
+assert "juliang-access-mark" not in login
+assert "juliang-login-version" not in login
 assert 'name="luci_username"' in login and 'name="luci_password"' in login
 assert "L.require('menu-juliang')" in footer
 assert "menu-juliang" not in header
 assert "juliang-theme" in css and "--jl-cyan: #67dce7" in css
 assert "linear-gradient" in css and "@media (max-width: 900px)" in css
 assert "letter-spacing: -" not in css
+assert "-webkit-font-smoothing: antialiased" in css and "text-rendering: auto" in css
+assert "overflow-y: auto" in css
+assert ".juliang-theme input:disabled" in css and ".juliang-theme select:disabled" in css
+assert "html body.juliang-theme button:disabled" in css
+assert "juliang.css?v=285-r2" in header
+assert "html body:has(.f252){height:auto!important" in console
+assert "body:has(.f252) .f25-content{flex:none!important" in console
+assert ".f252 .field select:disabled" in console and "background:#0d2231!important" in console
+assert ".f252 .split-editor{" in console and "background:#0c2030!important" in console
+assert ".f252 .split-platforms label.split-platform-chip" in console
 assert "bootstrap-dark" not in header
 assert "menu-bootstrap" not in footer and "argon" not in (header + footer + menu).lower()
 assert "luci-theme-juliang" in makefile and "PKG_VERSION:=2.8.5" in makefile
@@ -34,7 +54,10 @@ assert "include $(TOPDIR)/feeds/luci/luci.mk" in makefile
 assert "mediaurlbase='/luci-static/juliang'" in theme_defaults
 assert "lang='zh_cn'" in theme_defaults
 assert "PKG_UPGRADE" not in theme_defaults
-assert "hostname=JuLiang-OS-S20L" in fastacl_defaults
+assert "hostname=JuLiang-OS" in fastacl_defaults
+assert "max_wifi_5g=14" in fastacl_defaults and "max_wifi_2g=10" in fastacl_defaults
+assert "option max_wifi_5g '14'" in fastacl_config and "option max_wifi_2g '10'" in fastacl_config
+assert "capacity_profile=c.capacity_profile" in fastacl_controller
 assert "CONFIG_PACKAGE_luci-theme-juliang=y" in config
 assert "CONFIG_PACKAGE_luci-theme-argon=y" not in config
 assert "ddns-scripts_aliyun" not in target_mk

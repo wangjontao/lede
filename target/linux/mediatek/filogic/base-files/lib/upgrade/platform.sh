@@ -49,6 +49,7 @@ platform_do_upgrade() {
 	cmcc,rax3000me-emmc|\
 	cmcc,xr30-emmc|\
 	clx,s20l|\
+	clx,s20p|\
 	glinet,gl-mt2500|\
 	glinet,gl-mt6000|\
 	glinet,gl-x3000|\
@@ -56,6 +57,7 @@ platform_do_upgrade() {
 	hf,m7986r1-emmc|\
 	huasifei,wh3000-emmc|\
 	huasifei,wh3000-pro|\
+	jdcloud,re-cp-03|\
 	jdcloud,re-cs-05)
 		CI_KERNPART="kernel"
 		CI_ROOTPART="rootfs"
@@ -113,6 +115,7 @@ platform_copy_config() {
 	cmcc,rax3000me-emmc|\
 	cmcc,xr30-emmc|\
 	clx,s20l|\
+	clx,s20p|\
 	glinet,gl-mt2500|\
 	glinet,gl-mt6000|\
 	glinet,gl-x3000|\
@@ -120,6 +123,7 @@ platform_copy_config() {
 	hf,m7986r1-emmc|\
 	huasifei,wh3000-emmc|\
 	huasifei,wh3000-pro|\
+	jdcloud,re-cp-03|\
 	jdcloud,re-cs-05)
 		emmc_copy_config
 		;;
