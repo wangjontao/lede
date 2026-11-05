@@ -55,6 +55,12 @@ def configure(config_path):
     ]
     lines = replace_setting(lines, "CONFIG_TARGET_MULTI_PROFILE", "y")
     lines = replace_setting(lines, "CONFIG_TARGET_PER_DEVICE_ROOTFS", "y")
+    lines = replace_setting(lines, "CONFIG_IMAGEOPT", "y")
+    lines = replace_setting(lines, "CONFIG_VERSIONOPT", "y")
+    lines = replace_setting(lines, "CONFIG_VERSION_DIST", "JuLiang OS")
+    lines = replace_setting(lines, "CONFIG_VERSION_MANUFACTURER", "JuLiang OS")
+    lines = replace_setting(lines, "CONFIG_VERSION_PRODUCT", "JuLiang OS")
+    lines = replace_setting(lines, "CONFIG_VERSION_NUMBER", "v2.8.5")
     lines = replace_setting(lines, "CONFIG_VERSION_HWREV", "MT7981")
     lines = replace_setting(lines, "CONFIG_VERSION_CODE", "MT7981-ALL")
     lines.append("")
@@ -93,6 +99,19 @@ def verify_config(config_path):
         raise ValueError("CONFIG_TARGET_PER_DEVICE_ROOTFS must be enabled")
     if settings.get("CONFIG_TARGET_ALL_PROFILES") == "y":
         raise ValueError("CONFIG_TARGET_ALL_PROFILES must be disabled for an MT7981-only build")
+    if settings.get("CONFIG_IMAGEOPT") != "y" or settings.get("CONFIG_VERSIONOPT") != "y":
+        raise ValueError("IMAGEOPT and VERSIONOPT must be enabled")
+    expected_version = {
+        "CONFIG_VERSION_DIST": "JuLiang OS",
+        "CONFIG_VERSION_MANUFACTURER": "JuLiang OS",
+        "CONFIG_VERSION_PRODUCT": "JuLiang OS",
+        "CONFIG_VERSION_NUMBER": "v2.8.5",
+        "CONFIG_VERSION_HWREV": "MT7981",
+        "CONFIG_VERSION_CODE": "MT7981-ALL",
+    }
+    for key, value in expected_version.items():
+        if settings.get(key) != value:
+            raise ValueError(f"{key} must be {value}")
     print(f"Verified {len(expected)} MT7981 targets in {config_path}")
 
 

@@ -47,5 +47,8 @@ with tempfile.TemporaryDirectory() as directory:
     assert "CONFIG_TARGET_MULTI_PROFILE=y" in text
     assert "CONFIG_TARGET_PER_DEVICE_ROOTFS=y" in text
     assert "# CONFIG_TARGET_ALL_PROFILES is not set" in text
+    assert 'CONFIG_VERSION_NUMBER="v2.8.5"' in text
+    assert 'CONFIG_VERSION_HWREV="MT7981"' in text
+    assert 'CONFIG_VERSION_CODE="MT7981-ALL"' in text
 
 print("JuLiang OS MT7981 target manifest: OK")
