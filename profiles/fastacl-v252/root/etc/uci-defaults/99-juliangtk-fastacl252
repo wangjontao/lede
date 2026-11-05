@@ -6,16 +6,23 @@ if [ "$provisioned" != 0 ]; then
 	uci set 'fastacl252.main.version=2.8.5'
 	uci set 'fastacl252.main.dataplane=singbox'
 	uci set 'fastacl252.main.provisioned=1'
+	uci set 'system.@system[0].hostname=JuLiang-OS-S20L'
+	uci set 'luci.main.mediaurlbase=/luci-static/juliang'
+	uci set 'luci.main.lang=zh_cn'
 	uci commit fastacl252
+	uci commit system
+	uci commit luci
 	/etc/init.d/fastacl252 enable
 	/etc/init.d/wan-watchdog enable
 	exit 0
 fi
 
 uci set 'system.@system[0].hostname=JuLiang-OS-S20L'
+uci set 'luci.main.mediaurlbase=/luci-static/juliang'
+uci set 'luci.main.lang=zh_cn'
 uci set 'network.lan.ipaddr=192.168.7.1'
 uci set 'network.lan.netmask=255.255.255.0'
-uci commit system; uci commit network
+uci commit system; uci commit network; uci commit luci
 for radio in $(uci show wireless | sed -n 's/^wireless\.\([^.=]*\)=wifi-device$/\1/p'); do
   band=$(uci -q get "wireless.$radio.band" || true)
   uci set "wireless.$radio.disabled=0"

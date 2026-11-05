@@ -8,7 +8,17 @@
 
 	const boardinfo = ubus.call('system', 'board');
 	const hostname = striptags(boardinfo?.hostname ?? 'JuLiang OS');
-	const pageTitle = striptags(node?.title ?? '运行总览');
+	const routeTitles = {
+		'admin-juliang-home': 'JuLiang OS 监测中心',
+		'admin-juliang-wireless': '无线设备',
+		'admin-juliang-fastacl': 'JuLiang OS 控制台',
+		'admin-juliang-bbr': 'BBR TCP 加速',
+		'admin-juliang-upgrade': '在线升级',
+		'admin-system-nps': 'JuLiang OS 管理',
+		'admin-status-overview': '状态概览'
+	};
+	const routeKey = join('-', ctx.request_path);
+	const pageTitle = routeTitles[routeKey] ?? striptags(node?.title ?? '运行总览');
 
 	http.prepare_content('text/html; charset=UTF-8');
 -%}

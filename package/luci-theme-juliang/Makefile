@@ -23,6 +23,17 @@ define Package/luci-theme-juliang/postrm
 }
 endef
 
+define Package/luci-theme-juliang/postinst
+#!/bin/sh
+[ -n "$${IPKG_INSTROOT}" ] && exit 0
+uci -q set luci.themes.JuLiang='/luci-static/juliang'
+uci -q set luci.main.mediaurlbase='/luci-static/juliang'
+uci -q set luci.main.lang='zh_cn'
+uci -q commit luci
+rm -f /tmp/luci-indexcache /tmp/luci-indexcache.*
+exit 0
+endef
+
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature

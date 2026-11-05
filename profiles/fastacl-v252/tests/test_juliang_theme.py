@@ -14,6 +14,10 @@ css = (THEME / "htdocs/luci-static/juliang/juliang.css").read_text(encoding="utf
 makefile = (THEME / "Makefile").read_text(encoding="utf-8")
 config = CONFIG.read_text(encoding="utf-8")
 target_mk = (ROOT / "include/target.mk").read_text(encoding="utf-8")
+theme_defaults = (THEME / "root/etc/uci-defaults/30_luci-theme-juliang").read_text(encoding="utf-8")
+fastacl_defaults = (
+    ROOT / "profiles/fastacl-v252/root/etc/uci-defaults/99-juliangtk-fastacl252"
+).read_text(encoding="utf-8")
 
 assert "JuLiang OS" in header
 assert "v2.8.5" in header and "v2.8.5" in footer and "v2.8.5" in login
@@ -27,6 +31,10 @@ assert "bootstrap-dark" not in header
 assert "menu-bootstrap" not in footer and "argon" not in (header + footer + menu).lower()
 assert "luci-theme-juliang" in makefile and "PKG_VERSION:=2.8.5" in makefile
 assert "include $(TOPDIR)/feeds/luci/luci.mk" in makefile
+assert "mediaurlbase='/luci-static/juliang'" in theme_defaults
+assert "lang='zh_cn'" in theme_defaults
+assert "PKG_UPGRADE" not in theme_defaults
+assert "hostname=JuLiang-OS-S20L" in fastacl_defaults
 assert "CONFIG_PACKAGE_luci-theme-juliang=y" in config
 assert "CONFIG_PACKAGE_luci-theme-argon=y" not in config
 assert "ddns-scripts_aliyun" not in target_mk

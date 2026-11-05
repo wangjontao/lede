@@ -23,7 +23,15 @@ for name in fs.dir('/usr/share/luci/menu.d') do
 			for _, key in ipairs({
 				'admin/services/ddns',
 				'admin/services/wol',
-				'admin/services/ksmbd'
+				'admin/services/ksmbd',
+				'admin/status',
+				'admin/system/package-manager',
+				'admin/system/startup',
+				'admin/system/crontab',
+				'admin/system/mounts',
+				'admin/system/commands',
+				'admin/network/routes',
+				'admin/network/diagnostics'
 			}) do
 				if obj[key] then
 					obj[key].title = nil

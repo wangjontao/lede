@@ -12,6 +12,26 @@ return baseclass.extend({
 		var body = document.body;
 		var button = document.getElementById('juliang-menu-button');
 		var scrim = document.getElementById('juliang-scrim');
+		var revision = '285-1';
+
+		try {
+			var key = 'luci-session-store';
+			var sessions = JSON.parse(sessionStorage.getItem(key) || '{}');
+
+			Object.keys(sessions).forEach(function (session) {
+				var entry = sessions[session];
+
+				if (entry && typeof entry === 'object' && entry.juliangMenuRevision !== revision) {
+					delete entry.menu;
+					entry.juliangMenuRevision = revision;
+				}
+			});
+
+			sessionStorage.setItem(key, JSON.stringify(sessions));
+		}
+		catch (error) {
+			/* Session storage can be unavailable in private browsing. */
+		}
 
 		if (button)
 			button.addEventListener('click', function () {
@@ -31,6 +51,16 @@ return baseclass.extend({
 
 	isCurrent(name) {
 		return Array.isArray(L.env.dispatchpath) && L.env.dispatchpath.indexOf(name) !== -1;
+	},
+
+	displayTitle(title) {
+		const labels = {
+			'System': '系统',
+			'Network': '网络',
+			'Log out': '退出'
+		};
+
+		return labels[title] || title;
 	},
 
 	render(tree) {
@@ -60,7 +90,7 @@ return baseclass.extend({
 			const className = 'tabmenu-item-' + child.name + activeClass;
 
 			ul.appendChild(E('li', { 'class': className }, [
-				E('a', { 'href': L.url(url, child.name) }, [ _(child.title) ])
+				E('a', { 'href': L.url(url, child.name) }, [ _(this.displayTitle(child.title)) ])
 			]));
 
 			if (isActive)
@@ -99,7 +129,7 @@ return baseclass.extend({
 			const linkurl = hasChildren ? '#' : L.url(url, child.name);
 			const link = E('a', { 'class': linkclass, 'href': linkurl }, [
 				E('span', { 'class': 'juliang-nav-glyph', 'aria-hidden': 'true' }),
-				E('span', { 'class': 'juliang-nav-title' }, [ _(child.title) ]),
+				E('span', { 'class': 'juliang-nav-title' }, [ _(this.displayTitle(child.title)) ]),
 				hasChildren ? E('span', { 'class': 'juliang-nav-chevron', 'aria-hidden': 'true' }, ['›']) : E([])
 			]);
 

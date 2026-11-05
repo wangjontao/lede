@@ -158,6 +158,27 @@ padding:16px}
 .wmon .hero h2{font-size:22px}
 }
 
+/* JuLiang OS dark wireless workspace. */
+.wmon{--jl-panel:#0b1d2b;--jl-panel-2:#102738;--jl-line:#203c4f;--jl-text:#edf7fa;--jl-soft:#a9c0cc;--jl-muted:#708b9c;--jl-cyan:#67dce7;--jl-cyan-2:#a7f7ff;--jl-green:#67e9ac;color:var(--jl-soft)}
+.wmon .hero{border-color:var(--jl-line);border-radius:7px;background:linear-gradient(90deg,rgba(34,100,119,.27),var(--jl-panel));box-shadow:inset 4px 0 0 var(--jl-cyan)}
+.wmon h2{color:var(--jl-cyan-2);font-family:"Bahnschrift","Microsoft YaHei UI",sans-serif}
+.wmon .subtitle,.wmon .meta,.wmon .note,.wmon .footnote,.wmon .ap-sub,.wmon .field label{color:var(--jl-muted)}
+.wmon .live{border-color:rgba(103,233,172,.24);background:rgba(27,75,61,.28);color:var(--jl-green)}
+.wmon .stat,.wmon .wireless-ap,.wmon .empty-list,.wmon .empty-ap{border-color:var(--jl-line);border-radius:7px;background:var(--jl-panel);box-shadow:none}
+.wmon .stat small{color:var(--jl-muted)}
+.wmon .stat strong{color:var(--jl-cyan-2);font-family:"Bahnschrift","Consolas",monospace}
+.wmon .toolbar b,.wmon .title,.wmon .address{color:var(--jl-text)}
+.wmon .ap-head{border-color:var(--jl-line);background:var(--jl-panel-2)}
+.wmon .ap-name{color:var(--jl-text)}
+.wmon .ap-icon{border:1px solid #315267;background:#0a1e2c;color:var(--jl-cyan)}
+.wmon .pill{border:1px solid rgba(103,233,172,.23);background:rgba(27,75,61,.28);color:var(--jl-green)}
+.wmon .wireless-station{border-color:rgba(84,133,154,.14)}
+.wmon .rate{color:var(--jl-cyan-2);font-family:"Bahnschrift","Consolas",monospace}
+.wmon .download,.wmon .signal{color:var(--jl-green)}
+.wmon summary{color:var(--jl-soft)}
+.wmon .empty-state{color:var(--jl-muted)}
+.wmon button.cbi-button{border-color:#315267!important;background:#0d2333!important;color:#c2d8e2!important}
+
 </style>
 <div class="wmon" id="f25-wireless-section"><div class="hero"><div><h2>无线设备</h2><div class="subtitle">每个 WiFi 的连接状态与实时流量，一目了然</div></div><span class="live">● 实时监测 · 3 秒刷新</span></div><div class="stats"><div class="stat"><small>在线设备</small><strong id="f25-total">—</strong></div><div class="stat"><small>有设备的 WiFi</small><strong id="f25-active">—</strong></div><div class="stat"><small>无线接口</small><strong id="f25-interfaces">—</strong></div></div><div class="toolbar"><b>当前连接</b><button type="button" class="cbi-button" id="f25-wireless-refresh">刷新无线设备</button></div><div id="f25-wireless-list"></div><details class="empty-list" id="f25-empty"><summary id="f25-empty-title">未连接设备的 WiFi</summary><div class="empty-grid" id="f25-empty-list"></div></details><div class="footnote"><span id="f25-wireless-count">读取中</span> · <span id="f25-wireless-status">等待采样</span><br>上传 / 下载是设备与路由器间的实际流量（含局域网）；链路速率为无线协商速率。首次采样显示 —。</div></div>
 <script>(function(){'use strict';
