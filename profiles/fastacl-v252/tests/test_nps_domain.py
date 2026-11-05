@@ -11,6 +11,8 @@ wan_mac = (
 assert "nps.jontao.top" in integration
 assert "nps.jontao.top" in wan_mac
 assert "option server_addr 'nps.jontao.top'" in integration
+assert 'if [ ! -e "$DONE" ]' not in wan_mac
+assert "uci -q set nps.@nps[0].server_addr='nps.jontao.top'" in wan_mac
 assert "nps.66ccs.com" not in integration
 assert "nps.66ccs.com" not in wan_mac
 

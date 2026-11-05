@@ -61,6 +61,7 @@ jobs:
           python3 profiles/fastacl-v252/tests/test_online_upgrade.py
           python3 profiles/fastacl-v252/tests/test_mt7986_targets.py
           python3 profiles/fastacl-v252/tests/test_nps_domain.py
+          ! find files -iname '*dulwifi*' -print -quit | grep -q .
           LUA_PATH="profiles/fastacl-v252/root/usr/lib/lua/?.lua;;" lua5.1 profiles/fastacl-v252/tests/test_timezone.lua
           LUA_PATH="profiles/fastacl-v252/root/usr/lib/lua/?.lua;;" lua5.1 profiles/fastacl-v252/tests/test_wifi_profile.lua
           for spec in \

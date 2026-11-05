@@ -66,6 +66,8 @@ for root in files package/base-files/files; do
   [ -d "$root" ] || continue
   find "$root" -type f \( -iname '*passwall*' -o -iname '*homeproxy*' -o -iname '*openclash*' -o -iname '*20wifi*' -o -iname '*juliang-fastacl*' \) -delete
 done
+rm -f files/etc/uci-defaults/99-zz-dulwifi
+find files -type f -iname '*dulwifi*' -delete
 
 # NPS uses a domain in Lite. Keep the feed defaults and LuCI validator aligned
 # so nps.jontao.top can be displayed, edited and saved without an IP-only error.

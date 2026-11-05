@@ -50,6 +50,7 @@ jobs:
           python3 scripts/juliang-os-mt7981.py --help >/dev/null
           python3 profiles/fastacl-v252/tests/test_mt7981_targets.py
           python3 profiles/fastacl-v252/tests/test_nps_domain.py
+          ! find files -iname '*dulwifi*' -print -quit | grep -q .
           python3 profiles/fastacl-v252/tests/test_juliang_theme.py
           python3 profiles/fastacl-v252/tests/test_accounts.py
           python3 profiles/fastacl-v252/tests/test_timezone.py
