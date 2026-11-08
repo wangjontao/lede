@@ -87,13 +87,14 @@ mkdir -p release
 for row in "${ROWS[@]}"; do
     set -- $row
     dev="$1"; tag="$2"
-    img="$(find bin/targets/mediatek/filogic -name "*${dev}*sysupgrade.bin" -size +5M | head -n1)"
+    img="$(find bin/targets/mediatek/filogic \( -name "*${dev}*sysupgrade.bin" -o -name "*${dev}*sysupgrade.itb" \) -size +5M | head -n1)"
     man="$(find bin/targets/mediatek/filogic -name "*${dev}*.manifest" | head -n1)"
     if [ -z "$img" ]; then
         echo "No sysupgrade image produced for ${dev}" >&2
         exit 1
     fi
-    cp "$img" "release/JuLiangOS-${tag}-sysupgrade.bin"
+    ext="${img##*.}"
+    cp "$img" "release/JuLiangOS-${tag}-sysupgrade.${ext}"
     if [ -n "$man" ]; then
         cp "$man" "release/JuLiangOS-${tag}.manifest"
         grep -q '^luci-app-sqm ' "release/JuLiangOS-${tag}.manifest" || {

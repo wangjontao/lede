@@ -403,6 +403,18 @@ define Device/cmcc_a10-mod
 endef
 TARGET_DEVICES += cmcc_a10-mod
 
+define Device/cmcc_a10-ubootmod
+  DEVICE_VENDOR := CMCC
+  DEVICE_MODEL := A10 (114 MiB U-Boot layout)
+  DEVICE_DTS := mt7981b-cmcc-a10-ubootmod
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS_LOADADDR := 0x43f00000
+  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+  IMAGE_SIZE := 116736k
+  IMAGE/sysupgrade.itb := append-kernel | fit gzip $$(KDIR)/image-$$(DEVICE_DTS).dtb external-with-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
+endef
+TARGET_DEVICES += cmcc_a10-ubootmod
+
 define Device/cmcc_rax3000m-emmc
   DEVICE_VENDOR := CMCC
   DEVICE_MODEL := RAX3000M (eMMC version)

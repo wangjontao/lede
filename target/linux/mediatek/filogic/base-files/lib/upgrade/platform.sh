@@ -45,6 +45,10 @@ platform_do_upgrade() {
 			;;
 		esac
 		;;
+	cmcc,a10-ubootmod)
+		CI_KERNPART="fit"
+		nand_do_upgrade "$1"
+		;;
 	aigo,ags21|\
 	cmcc,rax3000m-emmc|\
 	cmcc,rax3000me-emmc|\

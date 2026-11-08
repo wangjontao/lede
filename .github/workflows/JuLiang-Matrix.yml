@@ -7,7 +7,9 @@ name: JuLiang OS Matrix (MT7981/MT7986)
 on:
   workflow_dispatch:
   push:
-    branches: [jontaoNpS-rax3000m-nand-live-os]
+    branches:
+      - jontaoNpS-rax3000m-nand-live-os
+      - codex/cmcc-a10-live13-114m
     paths:
       - 'custom/matrix/**'
       - 'scripts/build-juilang-matrix.sh'
@@ -76,7 +78,7 @@ jobs:
             juilang-matrix-${{ runner.os }}-${{ matrix.group }}-
 
       - name: Build group ${{ matrix.group }}
-        run: bash scripts/build-juilang-matrix.sh ${{ matrix.group }} || { tail -n 200 build.log 2>/dev/null || true; exit 1; }
+        run: bash scripts/build-juilang-matrix.sh ${{ matrix.group }} custom/matrix/devices-a10-live13-114m.txt || { tail -n 200 build.log 2>/dev/null || true; exit 1; }
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -115,7 +117,7 @@ jobs:
         run: |
           set -eu
           mkdir -p release
-          find artifacts -type f \( -name '*.bin' -o -name '*.manifest' -o -name 'build.config' \) -exec cp -a {} release/ \;
+          find artifacts -type f \( -name '*.bin' -o -name '*.itb' -o -name '*.manifest' -o -name 'build.config' \) -exec cp -a {} release/ \;
           ls -lh release
           cd release && sha256sum * > SHA256SUMS
 
@@ -123,8 +125,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "JuLiangOS-Matrix-${GITHUB_RUN_NUMBER}" release/* \
+          gh release create "JuLiangOS-Live13-A10-114M-${GITHUB_RUN_NUMBER}" release/* \
             --target "$GITHUB_SHA" \
-            --title "JuLiang OS Matrix ${GITHUB_RUN_NUMBER}" \
-            --notes 'Multi-device JuLiang OS build. Each image: management 192.168.7.1, root @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, br-live 172.16.1.1/24, PassWall2 + HomeProxy, SQM (cake), WAN DHCP lease guard, no IPv6.'
+            --title "JuLiang OS Live 1.3 CMCC A10 114M ${GITHUB_RUN_NUMBER}" \
+            --notes 'JuLiang OS Live 1.3 for CMCC A10 using the standard non-NMBM U-Boot 114 MiB layout. FIT sysupgrade image; UBI 0x0580000-0x07780000. Management 192.168.7.1, root @password@, JuLiang OS-2.4G/-5G and Live-2.4G/-5G with passphrase 66668888, PassWall2 + HomeProxy, SQM, no IPv6.'
 

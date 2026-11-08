@@ -1,0 +1,2 @@
+# Dedicated JuLiang OS Live 1.3 target: CMCC A10, non-NMBM U-Boot, 114 MiB UBI.
+g2  cmcc_a10-ubootmod  A10-UBootMod-114M
