@@ -87,7 +87,7 @@ mkdir -p release
 for row in "${ROWS[@]}"; do
     set -- $row
     dev="$1"; tag="$2"
-    img="$(find bin/targets/mediatek/filogic \( -name "*${dev}*sysupgrade.bin" -o -name "*${dev}*sysupgrade.itb" \) -size +5M | head -n1)"
+    img="$(find bin/targets/mediatek/filogic \( -name "*${dev}*sysupgrade.itb" -o -name "*${dev}*sysupgrade.bin" \) -size +5M | head -n1)"
     man="$(find bin/targets/mediatek/filogic -name "*${dev}*.manifest" | head -n1)"
     if [ -z "$img" ]; then
         echo "No sysupgrade image produced for ${dev}" >&2

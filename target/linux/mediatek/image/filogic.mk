@@ -410,6 +410,7 @@ define Device/cmcc_a10-ubootmod
   DEVICE_DTS_DIR := ../dts
   DEVICE_DTS_LOADADDR := 0x43f00000
   DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
+  IMAGES := sysupgrade.itb
   IMAGE_SIZE := 116736k
   IMAGE/sysupgrade.itb := append-kernel | fit gzip $$(KDIR)/image-$$(DEVICE_DTS).dtb external-with-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
 endef
