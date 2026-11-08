@@ -391,13 +391,16 @@ TARGET_DEVICES += cmcc_a10
 
 define Device/cmcc_a10-mod
   DEVICE_VENDOR := CMCC
-  DEVICE_MODEL := A10 (U-Boot mod)
+  DEVICE_MODEL := A10 (NMBM expand layout)
   DEVICE_DTS := mt7981b-cmcc-a10-mod
   DEVICE_DTS_DIR := ../dts
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
+  IMAGE_SIZE := 114688k
   KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware
 endef
